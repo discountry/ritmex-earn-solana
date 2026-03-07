@@ -1,0 +1,15 @@
+{
+  "expo": {
+    "scheme": "ritmex-earn-solana",
+    "userInterfaceStyle": "automatic",
+    "orientation": "default",
+    "web": {
+      "output": "static"
+    },
+    "name": "ritmex-earn-solana",
+    "slug": "ritmex-earn-solana",
+    "android": {
+      "package": "com.ritmex.earn.solana"
+    }
+  }
+}

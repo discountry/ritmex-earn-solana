@@ -1,0 +1,100 @@
+{
+  "nav": {
+    "help": "帮助"
+  },
+  "wallet": {
+    "changeWallet": "更换钱包",
+    "connecting": "连接中 ...",
+    "copyAddress": "复制地址",
+    "copied": "已复制",
+    "disconnect": "断开连接",
+    "connectWallet": "连接钱包"
+  },
+  "home": {
+    "title": "Meteora 交易池",
+    "filterNotice": "已为您过滤所有刷量和低流动性资金池",
+    "totalTvl": "资金总量：",
+    "tradeVolume24h": "24小时交易额：",
+    "price": "价格",
+    "tvl": "资金总量",
+    "fees24h": "24小时手续费",
+    "feesTvlRatio": "手续费 / 资金总量",
+    "binStep": "网格跨度",
+    "onChainAddress": "链上地址"
+  },
+  "pool": {
+    "fee": "手续费",
+    "binStep": "网格跨度",
+    "tvl": "资金总量",
+    "tradeVolume24h": "24小时交易额",
+    "fees24h": "24小时手续费",
+    "yield24h": "24小时收益率",
+    "goToGmgn": "前往GMGN交易{tokenX}",
+    "goToMeteora": "前往Meteora交易{tokenX}",
+    "currentPrice": "现价"
+  },
+  "liquidity": {
+    "addLiquidity": "添加流动性",
+    "swap": "兑换",
+    "autoCalc": "自动计算",
+    "manualSet": "手动设置",
+    "defaultMode": "默认模式",
+    "defaultModeDesc": "在价格范围内所有网格平均分配资金",
+    "stableMode": "稳定模式",
+    "stableModeDesc": "在接近当前价格的网格分配多数资金",
+    "volatileMode": "波动模式",
+    "volatileModeDesc": "在远离当前价格的网格分配多数资金",
+    "amount": "{token} 数量",
+    "max": "最大",
+    "processing": "处理中...",
+    "confirmAddLiquidity": "确认添加流动性",
+    "securityNotice": "安全：RitMEX 协助您直接和 Meteora 官方发起交互，不保存任何隐私信息。",
+    "rentNotice": "注意：创建网格仓位需要在链上锁定 {amount} SOL 作为租赁押金，关闭仓位时全额退还。",
+    "feeNotice": "费用：每次创建仓位需要支付 {amount} SOL 手续费。",
+    "invalidAmount": "请输入有效的数量！",
+    "insufficientBalance": "余额不足！",
+    "checkBalanceAndConfirm": "请检查余额和选项后确认交易！"
+  },
+  "swap": {
+    "title": "兑换",
+    "mevProtection": "MEV防护防止交易被夹",
+    "amount": "{token} 数量",
+    "max": "最大",
+    "processing": "处理中...",
+    "confirmSwap": "确认兑换",
+    "securityNotice": "安全：RitMEX 协助您直接和 Meteora 官方发起交互，不保存任何隐私信息。",
+    "feeNotice": "费用：每次兑换需要支付 {amount} SOL 作为手续费。",
+    "connectWalletFirst": "请先连接钱包",
+    "invalidSwapAmount": "请输入有效的兑换数量"
+  },
+  "position": {
+    "currentPositions": "当前仓位",
+    "positionId": "仓位 ID",
+    "positionFunds": "仓位资金",
+    "earnedFees": "赚取手续费",
+    "closePosition": "关闭仓位"
+  },
+  "confirm": {
+    "txSubmitted": "交易提交成功",
+    "waitConfirmation": "请耐心等待网络确认（10-30秒左右）",
+    "retryNotice": "如果1分钟以上仍未确认，重新操作即可，未上链的交易不会产生任何费用。",
+    "viewTxDetails": "查看交易详情：",
+    "gotIt": "我知道了"
+  },
+  "chart": {
+    "gridLower": "网格下限",
+    "gridUpper": "网格上限"
+  },
+  "priority": {
+    "slow": "慢速",
+    "normal": "普通",
+    "fast": "极速"
+  },
+  "transaction": {
+    "submitted": "交易已提交!"
+  },
+  "language": {
+    "zh": "中文",
+    "en": "English"
+  }
+}

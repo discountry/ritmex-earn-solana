@@ -1,0 +1,100 @@
+{
+  "nav": {
+    "help": "Help"
+  },
+  "wallet": {
+    "changeWallet": "Change Wallet",
+    "connecting": "Connecting ...",
+    "copyAddress": "Copy Address",
+    "copied": "Copied",
+    "disconnect": "Disconnect",
+    "connectWallet": "Connect Wallet"
+  },
+  "home": {
+    "title": "Meteora Pools",
+    "filterNotice": "Low-volume/low-liquidity pools are filtered",
+    "totalTvl": "Total TVL: ",
+    "tradeVolume24h": "24h Volume: ",
+    "price": "Price",
+    "tvl": "TVL",
+    "fees24h": "24h Fees",
+    "feesTvlRatio": "Fees / TVL",
+    "binStep": "Bin Step",
+    "onChainAddress": "Address"
+  },
+  "pool": {
+    "fee": "Fee",
+    "binStep": "Bin Step",
+    "tvl": "TVL",
+    "tradeVolume24h": "24h Volume",
+    "fees24h": "24h Fees",
+    "yield24h": "24h Yield",
+    "goToGmgn": "Trade {tokenX} on GMGN",
+    "goToMeteora": "Trade {tokenX} on Meteora",
+    "currentPrice": "Price"
+  },
+  "liquidity": {
+    "addLiquidity": "Add Liquidity",
+    "swap": "Swap",
+    "autoCalc": "Auto",
+    "manualSet": "Manual",
+    "defaultMode": "Default",
+    "defaultModeDesc": "Distribute funds evenly across all bins within the price range",
+    "stableMode": "Stable",
+    "stableModeDesc": "Distribute most funds to bins near the current price",
+    "volatileMode": "Volatile",
+    "volatileModeDesc": "Distribute most funds to bins far from the current price",
+    "amount": "{token} Amount",
+    "max": "Max",
+    "processing": "Processing...",
+    "confirmAddLiquidity": "Confirm Add Liquidity",
+    "securityNotice": "Security: RitMEX helps you interact directly with Meteora. No private information is stored.",
+    "rentNotice": "Note: Creating a position requires locking {amount} SOL on-chain as rent deposit, fully refunded when the position is closed.",
+    "feeNotice": "Fee: Each position creation requires a {amount} SOL fee.",
+    "invalidAmount": "Please enter a valid amount!",
+    "insufficientBalance": "Insufficient balance!",
+    "checkBalanceAndConfirm": "Please check balance and options before confirming!"
+  },
+  "swap": {
+    "title": "Swap",
+    "mevProtection": "MEV protection prevents sandwich attacks",
+    "amount": "{token} Amount",
+    "max": "Max",
+    "processing": "Processing...",
+    "confirmSwap": "Confirm Swap",
+    "securityNotice": "Security: RitMEX helps you interact directly with Meteora. No private information is stored.",
+    "feeNotice": "Fee: Each swap requires a {amount} SOL fee.",
+    "connectWalletFirst": "Please connect wallet first",
+    "invalidSwapAmount": "Please enter a valid swap amount"
+  },
+  "position": {
+    "currentPositions": "Positions",
+    "positionId": "Position ID",
+    "positionFunds": "Position Funds",
+    "earnedFees": "Earned Fees",
+    "closePosition": "Close Position"
+  },
+  "confirm": {
+    "txSubmitted": "Transaction Submitted",
+    "waitConfirmation": "Please wait for network confirmation (10-30 seconds)",
+    "retryNotice": "If unconfirmed after 1 minute, retry the operation. Unconfirmed transactions incur no fees.",
+    "viewTxDetails": "View transaction: ",
+    "gotIt": "Got it"
+  },
+  "chart": {
+    "gridLower": "Lower Bound",
+    "gridUpper": "Upper Bound"
+  },
+  "priority": {
+    "slow": "Slow",
+    "normal": "Normal",
+    "fast": "Fast"
+  },
+  "transaction": {
+    "submitted": "Transaction submitted!"
+  },
+  "language": {
+    "zh": "中文",
+    "en": "English"
+  }
+}
