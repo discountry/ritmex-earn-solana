@@ -1,6 +1,7 @@
 import { Link } from 'expo-router'
 import { Pressable, Text, View } from 'react-native'
 
+import { AppIcon } from '@/components/ui/app-icon'
 import { SectionCard } from '@/components/ui/section-card'
 import { formatCompactCurrency, formatPercentage, shortAddress } from '@/lib/formatters'
 import type { MeteoraPool } from '@/types/meteora'
@@ -35,22 +36,34 @@ export function PoolMarketCard({ pool }: PoolMarketCardProps) {
             </View>
 
             <View className="items-end">
-              <Text className="text-xs uppercase tracking-wide text-ink-700">24h 交易量</Text>
+              <View className="flex-row items-center gap-1">
+                <AppIcon color="#6a655d" name="bar-chart-outline" size={14} />
+                <Text className="text-xs uppercase tracking-wide text-ink-700">24h 交易量</Text>
+              </View>
               <Text className="text-base font-semibold text-ink-900">{formatCompactCurrency(pool.volume['24h'])}</Text>
             </View>
           </View>
 
           <View className="flex-row flex-wrap gap-3">
             <View className="min-w-[29%] flex-1 rounded-2xl bg-sand-50 px-3 py-3">
-              <Text className="text-xs uppercase tracking-wide text-ink-700">TVL</Text>
+              <View className="flex-row items-center gap-1">
+                <AppIcon color="#6a655d" name="wallet-outline" size={14} />
+                <Text className="text-xs uppercase tracking-wide text-ink-700">TVL</Text>
+              </View>
               <Text className="mt-1 text-base font-semibold text-ink-900">{formatCompactCurrency(pool.tvl)}</Text>
             </View>
             <View className="min-w-[29%] flex-1 rounded-2xl bg-sand-50 px-3 py-3">
-              <Text className="text-xs uppercase tracking-wide text-ink-700">24h APR</Text>
+              <View className="flex-row items-center gap-1">
+                <AppIcon color="#6a655d" name="trending-up-outline" size={14} />
+                <Text className="text-xs uppercase tracking-wide text-ink-700">24h APR</Text>
+              </View>
               <Text className="mt-1 text-base font-semibold text-ink-900">{formatPercentage(pool.apr)}</Text>
             </View>
             <View className="min-w-[29%] flex-1 rounded-2xl bg-sand-50 px-3 py-3">
-              <Text className="text-xs uppercase tracking-wide text-ink-700">费率效率</Text>
+              <View className="flex-row items-center gap-1">
+                <AppIcon color="#6a655d" name="flash-outline" size={14} />
+                <Text className="text-xs uppercase tracking-wide text-ink-700">费率效率</Text>
+              </View>
               <Text className="mt-1 text-base font-semibold text-ink-900">
                 {formatPercentage(pool.fee_tvl_ratio['24h'])}
               </Text>
@@ -61,7 +74,10 @@ export function PoolMarketCard({ pool }: PoolMarketCardProps) {
             <Text className="text-sm text-ink-700">
               价格 {pool.token_x.symbol}/{pool.token_y.symbol} · {formatCompactCurrency(pool.current_price)}
             </Text>
-            <Text className="text-sm font-semibold text-mint-600">查看</Text>
+            <View className="flex-row items-center gap-1">
+              <Text className="text-sm font-semibold text-mint-600">查看</Text>
+              <AppIcon color="#23685b" name="chevron-forward" size={16} />
+            </View>
           </View>
         </SectionCard>
       </Pressable>

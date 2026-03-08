@@ -296,6 +296,7 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
         </View>
 
         <PrimaryButton
+          iconName={accountAddress ? 'add-circle-outline' : 'wallet-outline'}
           label={accountAddress ? '添加流动性' : '连接钱包'}
           onPress={() => {
             void handleSubmit()

@@ -77,6 +77,7 @@ export default function MarketsScreen() {
 
         {heroPool ? (
           <PrimaryButton
+            iconName="arrow-forward-circle-outline"
             label="查看详情"
             onPress={() => router.push({ pathname: '/pool/[address]', params: { address: heroPool.address } })}
             tone="brand"

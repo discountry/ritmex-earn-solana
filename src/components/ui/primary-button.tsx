@@ -1,5 +1,6 @@
 import { ActivityIndicator, Pressable, Text, View } from 'react-native'
 
+import { AppIcon, type AppIconName } from '@/components/ui/app-icon'
 import { cn } from '@/lib/cn'
 
 type PrimaryButtonTone = 'dark' | 'brand' | 'ghost'
@@ -20,6 +21,7 @@ interface PrimaryButtonProps {
   busy?: boolean
   className?: string
   disabled?: boolean
+  iconName?: AppIconName
   label: string
   onPress?: () => void
   subtitle?: string
@@ -30,6 +32,7 @@ export function PrimaryButton({
   busy = false,
   className,
   disabled = false,
+  iconName,
   label,
   onPress,
   subtitle,
@@ -50,6 +53,7 @@ export function PrimaryButton({
     >
       <View className="flex-row items-center justify-center gap-2">
         {busy ? <ActivityIndicator color={tone === 'ghost' ? '#171512' : '#f6f1e7'} /> : null}
+        {!busy && iconName ? <AppIcon color={tone === 'ghost' ? '#171512' : '#f6f1e7'} name={iconName} /> : null}
         <View className="items-center">
           <Text className={cn('text-base font-semibold', textClasses[tone])}>{label}</Text>
           {subtitle ? <Text className={cn('text-xs', textClasses[tone])}>{subtitle}</Text> : null}

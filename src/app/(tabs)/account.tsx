@@ -74,7 +74,7 @@ export default function AccountScreen() {
             <Text className="mt-2 text-sm text-sand-100">已连接</Text>
           </View>
         ) : (
-          <PrimaryButton label="连接钱包" onPress={() => void handleConnect()} tone="brand" />
+          <PrimaryButton iconName="wallet-outline" label="连接钱包" onPress={() => void handleConnect()} tone="brand" />
         )}
       </SectionCard>
 
@@ -116,6 +116,7 @@ export default function AccountScreen() {
             <Text className="text-base font-semibold text-ink-900">暂无仓位</Text>
             <Text className="text-sm text-ink-700">去看看热门池</Text>
             <PrimaryButton
+              iconName="compass-outline"
               label="查看热门池"
               onPress={() =>
                 router.push({ pathname: '/pool/[address]', params: { address: fallbackPools[0].address } })

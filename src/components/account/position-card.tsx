@@ -1,6 +1,7 @@
 import { Link } from 'expo-router'
 import { Pressable, Text, View } from 'react-native'
 
+import { AppIcon } from '@/components/ui/app-icon'
 import { PrimaryButton } from '@/components/ui/primary-button'
 import { SectionCard } from '@/components/ui/section-card'
 import {
@@ -36,10 +37,24 @@ export function PositionCard({ onClose, onCollect, position }: PositionCardProps
             </View>
           </View>
           <Text className="text-sm text-ink-700">{formatPositionLabel(position)}</Text>
-          <Text className="text-xs text-ink-700">
-            {formatPriorityLabel(position.priorityLevel)} · {position.useJito ? 'Jito' : '标准'} ·{' '}
-            {formatTimeAgo(position.createdAt)}
-          </Text>
+          <View className="flex-row flex-wrap items-center gap-3">
+            <View className="flex-row items-center gap-1">
+              <AppIcon color="#6a655d" name="options-outline" size={14} />
+              <Text className="text-xs text-ink-700">{formatPriorityLabel(position.priorityLevel)}</Text>
+            </View>
+            <View className="flex-row items-center gap-1">
+              <AppIcon
+                color="#6a655d"
+                name={position.useJito ? 'shield-checkmark-outline' : 'flash-outline'}
+                size={14}
+              />
+              <Text className="text-xs text-ink-700">{position.useJito ? 'Jito' : '标准'}</Text>
+            </View>
+            <View className="flex-row items-center gap-1">
+              <AppIcon color="#6a655d" name="time-outline" size={14} />
+              <Text className="text-xs text-ink-700">{formatTimeAgo(position.createdAt)}</Text>
+            </View>
+          </View>
         </Pressable>
       </Link>
 
@@ -62,8 +77,22 @@ export function PositionCard({ onClose, onCollect, position }: PositionCardProps
       </View>
 
       <View className="flex-row gap-3">
-        <PrimaryButton className="flex-1" disabled={isClosed} label="收取" onPress={onCollect} tone="ghost" />
-        <PrimaryButton className="flex-1" disabled={isClosed} label="关闭" onPress={onClose} tone="dark" />
+        <PrimaryButton
+          className="flex-1"
+          disabled={isClosed}
+          iconName="cash-outline"
+          label="收取"
+          onPress={onCollect}
+          tone="ghost"
+        />
+        <PrimaryButton
+          className="flex-1"
+          disabled={isClosed}
+          iconName="close-circle-outline"
+          label="关闭"
+          onPress={onClose}
+          tone="dark"
+        />
       </View>
     </SectionCard>
   )

@@ -155,6 +155,7 @@ export function SwapForm({ accountAddress, onCreateSwap, onRequireConnect, pool 
         </View>
 
         <PrimaryButton
+          iconName={accountAddress ? 'swap-horizontal' : 'wallet-outline'}
           label={accountAddress ? '兑换' : '连接钱包'}
           onPress={() => {
             void handleSubmit()
