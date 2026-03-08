@@ -1,18 +1,41 @@
 import '../global.css'
 
-import { Slot } from 'expo-router'
-import { MobileWalletProvider, createSolanaDevnet } from '@wallet-ui/react-native-kit'
+import { Stack } from 'expo-router'
+import { StatusBar } from 'expo-status-bar'
+import { MobileWalletProvider, createSolanaMainnet } from '@wallet-ui/react-native-kit'
 
-const cluster = createSolanaDevnet()
+import { MvpStoreProvider } from '@/providers/mvp-store-provider'
+
+const cluster = createSolanaMainnet('https://api.mainnet-beta.solana.com')
 const identity = {
-  name: 'ritmex-earn-solana',
-  uri: 'https://github.com/beeman/ritmex-earn-solana',
+  name: 'RitMEX Earn',
+  uri: 'https://ritmex.app',
 }
 
 export default function Layout() {
   return (
     <MobileWalletProvider cluster={cluster} identity={identity}>
-      <Slot />
+      <MvpStoreProvider>
+        <StatusBar style="dark" />
+        <Stack
+          screenOptions={{
+            contentStyle: {
+              backgroundColor: '#f6f1e7',
+            },
+            headerShadowVisible: false,
+            headerStyle: {
+              backgroundColor: '#f6f1e7',
+            },
+            headerTintColor: '#171512',
+            headerTitleStyle: {
+              fontWeight: '700',
+            },
+          }}
+        >
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen name="pool/[address]" options={{ title: '池子详情' }} />
+        </Stack>
+      </MvpStoreProvider>
     </MobileWalletProvider>
   )
 }

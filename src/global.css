@@ -1,2 +1,14 @@
 @import 'tailwindcss';
 @import 'uniwind';
+
+@theme {
+  --color-sand-50: #f6f1e7;
+  --color-sand-100: #eee5d3;
+  --color-sand-200: #dbcfb8;
+  --color-ink-700: #3e3a33;
+  --color-ink-900: #171512;
+  --color-mint-500: #2c7967;
+  --color-mint-600: #23685b;
+  --color-clay-500: #b26142;
+  --color-clay-100: #f5ddcf;
+}

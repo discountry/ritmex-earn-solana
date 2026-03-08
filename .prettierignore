@@ -1,8 +1,13 @@
 # Add files here to ignore them from prettier formatting
 /.expo
+/.pnpm-store
 /android
 /coverage
 /dist
+/docs
 /ios
 /tmp
+AGENTS.md
+PLAN.md
 pnpm-lock.yaml
+src/uniwind-types.d.ts
