@@ -1,4 +1,4 @@
-import type { DraftPosition } from '@/types/meteora'
+import type { DraftPosition, LiquidityMode, PriceStrategy, PriorityLevel } from '@/types/meteora'
 
 const compactFormatter = new Intl.NumberFormat('zh-CN', {
   notation: 'compact',
@@ -83,6 +83,39 @@ export function formatTimeAgo(timestamp: number) {
   return `${diffDays} 天前`
 }
 
+export function formatModeLabel(mode: LiquidityMode) {
+  switch (mode) {
+    case 'Balanced':
+      return '均衡'
+    case 'Imbalanced':
+      return '偏置'
+    case 'One-Sided':
+      return '单边'
+  }
+}
+
+export function formatStrategyLabel(strategy: PriceStrategy) {
+  switch (strategy) {
+    case 'Default':
+      return '默认'
+    case 'Stable':
+      return '稳定'
+    case 'Volatile':
+      return '波动'
+  }
+}
+
+export function formatPriorityLabel(priority: PriorityLevel) {
+  switch (priority) {
+    case 'Low':
+      return '低'
+    case 'Medium':
+      return '中'
+    case 'High':
+      return '高'
+  }
+}
+
 export function formatPositionLabel(position: DraftPosition) {
-  return `${position.tokenXSymbol}/${position.tokenYSymbol} · ${position.mode}`
+  return `${position.tokenXSymbol}/${position.tokenYSymbol} · ${formatModeLabel(position.mode)}`
 }

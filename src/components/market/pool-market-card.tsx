@@ -59,9 +59,9 @@ export function PoolMarketCard({ pool }: PoolMarketCardProps) {
 
           <View className="flex-row items-center justify-between">
             <Text className="text-sm text-ink-700">
-              现价 {pool.token_x.symbol}/{pool.token_y.symbol} · {formatCompactCurrency(pool.current_price)}
+              价格 {pool.token_x.symbol}/{pool.token_y.symbol} · {formatCompactCurrency(pool.current_price)}
             </Text>
-            <Text className="text-sm font-semibold text-mint-600">打开池子</Text>
+            <Text className="text-sm font-semibold text-mint-600">查看</Text>
           </View>
         </SectionCard>
       </Pressable>

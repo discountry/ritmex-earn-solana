@@ -1,5 +1,6 @@
 import * as React from 'react'
 
+import { formatModeLabel, formatPriorityLabel, formatStrategyLabel } from '@/lib/formatters'
 import type { ActivityItem, AddPositionInput, DraftPosition, RecordSwapInput } from '@/types/meteora'
 
 interface MvpStoreContextValue {
@@ -60,8 +61,8 @@ export function MvpStoreProvider({ children }: React.PropsWithChildren) {
     pushActivity({
       kind: 'liquidity',
       ownerAddress: input.ownerAddress,
-      title: `已创建 ${input.pool.name} 仓位`,
-      subtitle: `${input.mode} · ${input.strategy} · ${input.useJito ? 'Jito' : '标准执行'}`,
+      title: '新增仓位',
+      subtitle: `${input.pool.name} · ${formatModeLabel(input.mode)} · ${formatStrategyLabel(input.strategy)}`,
     })
 
     return position
@@ -93,8 +94,8 @@ export function MvpStoreProvider({ children }: React.PropsWithChildren) {
       pushActivity({
         kind: 'collect',
         ownerAddress: updatedPosition.ownerAddress,
-        title: `已收取 ${updatedPosition.poolName} 费用`,
-        subtitle: `${updatedPosition.tokenXSymbol}/${updatedPosition.tokenYSymbol} · 已同步到账户视图`,
+        title: '收取费用',
+        subtitle: updatedPosition.poolName,
       })
     }
 
@@ -123,8 +124,8 @@ export function MvpStoreProvider({ children }: React.PropsWithChildren) {
       pushActivity({
         kind: 'close',
         ownerAddress: closedPosition.ownerAddress,
-        title: `已关闭 ${closedPosition.poolName} 仓位`,
-        subtitle: `${closedPosition.priorityLevel} 优先费 · ${closedPosition.useJito ? 'Jito' : '标准路径'}`,
+        title: '关闭仓位',
+        subtitle: `${closedPosition.poolName} · ${formatPriorityLabel(closedPosition.priorityLevel)}`,
       })
     }
   }
@@ -133,10 +134,10 @@ export function MvpStoreProvider({ children }: React.PropsWithChildren) {
     pushActivity({
       kind: 'swap',
       ownerAddress: input.ownerAddress,
-      title: `已记录 ${input.pool.name} 兑换计划`,
+      title: '兑换',
       subtitle: `${input.direction === 'xToY' ? input.pool.token_x.symbol : input.pool.token_y.symbol} -> ${
         input.direction === 'xToY' ? input.pool.token_y.symbol : input.pool.token_x.symbol
-      } · ${input.priorityLevel} 优先费`,
+      } · ${formatPriorityLabel(input.priorityLevel)}`,
     })
   }
 

@@ -32,7 +32,7 @@ export default function TabsLayout() {
         name="index"
         options={{
           title: '市场',
-          headerTitle: 'RitMEX Earn',
+          headerTitle: '市场',
           tabBarLabel: '市场',
         }}
       />
@@ -40,7 +40,7 @@ export default function TabsLayout() {
         name="account"
         options={{
           title: '账户',
-          headerTitle: '账户与仓位',
+          headerTitle: '账户',
           tabBarLabel: '账户',
         }}
       />

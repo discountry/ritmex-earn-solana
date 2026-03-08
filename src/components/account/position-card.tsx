@@ -3,7 +3,13 @@ import { Pressable, Text, View } from 'react-native'
 
 import { PrimaryButton } from '@/components/ui/primary-button'
 import { SectionCard } from '@/components/ui/section-card'
-import { formatCompactCurrency, formatPositionLabel, formatTimeAgo, formatTokenAmount } from '@/lib/formatters'
+import {
+  formatCompactCurrency,
+  formatPositionLabel,
+  formatPriorityLabel,
+  formatTimeAgo,
+  formatTokenAmount,
+} from '@/lib/formatters'
 import { getAccruedFeesUsd } from '@/lib/position-estimator'
 import type { DraftPosition } from '@/types/meteora'
 
@@ -25,13 +31,13 @@ export function PositionCard({ onClose, onCollect, position }: PositionCardProps
             <Text className="text-lg font-semibold text-ink-900">{position.poolName}</Text>
             <View className={`rounded-full px-2 py-1 ${isClosed ? 'bg-sand-100' : 'bg-clay-100'}`}>
               <Text className={`text-[11px] font-semibold ${isClosed ? 'text-ink-700' : 'text-clay-500'}`}>
-                {isClosed ? '已关闭' : '运行中'}
+                {isClosed ? '已关闭' : '活跃'}
               </Text>
             </View>
           </View>
           <Text className="text-sm text-ink-700">{formatPositionLabel(position)}</Text>
           <Text className="text-xs text-ink-700">
-            {position.priorityLevel} 优先费 · {position.useJito ? 'Jito 保护' : '标准执行'} ·{' '}
+            {formatPriorityLabel(position.priorityLevel)} · {position.useJito ? 'Jito' : '标准'} ·{' '}
             {formatTimeAgo(position.createdAt)}
           </Text>
         </Pressable>
@@ -39,7 +45,7 @@ export function PositionCard({ onClose, onCollect, position }: PositionCardProps
 
       <View className="flex-row flex-wrap gap-3">
         <View className="min-w-[47%] flex-1 rounded-2xl bg-sand-50 px-3 py-3">
-          <Text className="text-xs uppercase tracking-wide text-ink-700">仓位规模</Text>
+          <Text className="text-xs uppercase tracking-wide text-ink-700">规模</Text>
           <Text className="mt-1 text-base font-semibold text-ink-900">
             {formatCompactCurrency(position.depositUsd)}
           </Text>
@@ -49,15 +55,15 @@ export function PositionCard({ onClose, onCollect, position }: PositionCardProps
           </Text>
         </View>
         <View className="min-w-[47%] flex-1 rounded-2xl bg-sand-50 px-3 py-3">
-          <Text className="text-xs uppercase tracking-wide text-ink-700">待领取费用</Text>
+          <Text className="text-xs uppercase tracking-wide text-ink-700">未领取</Text>
           <Text className="mt-1 text-base font-semibold text-ink-900">{formatCompactCurrency(accruedFees)}</Text>
-          <Text className="mt-1 text-xs text-ink-700">已累计 {formatCompactCurrency(position.claimedFeesUsd)}</Text>
+          <Text className="mt-1 text-xs text-ink-700">已领取 {formatCompactCurrency(position.claimedFeesUsd)}</Text>
         </View>
       </View>
 
       <View className="flex-row gap-3">
-        <PrimaryButton className="flex-1" disabled={isClosed} label="收取费用" onPress={onCollect} tone="ghost" />
-        <PrimaryButton className="flex-1" disabled={isClosed} label="关闭仓位" onPress={onClose} tone="dark" />
+        <PrimaryButton className="flex-1" disabled={isClosed} label="收取" onPress={onCollect} tone="ghost" />
+        <PrimaryButton className="flex-1" disabled={isClosed} label="关闭" onPress={onClose} tone="dark" />
       </View>
     </SectionCard>
   )

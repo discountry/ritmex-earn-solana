@@ -29,7 +29,7 @@ export default function PoolDetailsScreen() {
     try {
       await connect()
     } catch {
-      Alert.alert('连接失败', '请在支持 Solana Mobile 钱包的设备上授权钱包。')
+      Alert.alert('钱包连接失败')
     }
   }
 
@@ -43,8 +43,8 @@ export default function PoolDetailsScreen() {
       >
         <Stack.Screen options={{ title: '池子详情' }} />
         <SectionCard className="gap-2">
-          <Text className="text-base font-semibold text-ink-900">{isLoading ? '加载池子中…' : '没有找到这个池子'}</Text>
-          <Text className="text-sm text-ink-700">返回市场页重新选择，或下拉重试刷新公开池子数据。</Text>
+          <Text className="text-base font-semibold text-ink-900">{isLoading ? '加载中…' : '未找到池子'}</Text>
+          <Text className="text-sm text-ink-700">下拉刷新重试</Text>
         </SectionCard>
       </ScrollView>
     )
@@ -68,8 +68,8 @@ export default function PoolDetailsScreen() {
             {shortAddress(pool.address)} · {pool.token_x.symbol}/{pool.token_y.symbol}
           </Text>
           <Text className="text-sm leading-6 text-sand-100">
-            {pool.launchpad ? `${pool.launchpad} 发射池 · ` : ''}
-            Bin Step {pool.pool_config.bin_step} · {pool.has_farm ? '附带 Farm' : '纯 DLMM 池'}
+            {pool.launchpad ? `${pool.launchpad} · ` : ''}Bin {pool.pool_config.bin_step}
+            {pool.has_farm ? ' · Farm' : ''}
           </Text>
         </View>
 
@@ -97,24 +97,18 @@ export default function PoolDetailsScreen() {
         </View>
 
         <Text className="text-xs text-sand-100">
-          {isFallback ? '当前为离线池子快照。' : '当前为 Meteora Mainnet 公共池子数据。'} 最近刷新{' '}
-          {formatTimeAgo(Date.now())}
+          {isFallback ? '离线数据' : '实时数据'} · {formatTimeAgo(Date.now())}
         </Text>
       </SectionCard>
 
       <SectionCard className="gap-4" tone="muted">
-        <View className="gap-1">
-          <Text className="text-base font-semibold text-ink-900">执行工作台</Text>
-          <Text className="text-sm text-ink-700">
-            先在这里完成参数编排，再把仓位和动作同步到账户页，形成完整的 MVP 操作闭环。
-          </Text>
-        </View>
+        <Text className="text-base font-semibold text-ink-900">操作</Text>
 
         <PillSelector
           onChange={setActiveTab}
           options={[
-            { hint: '构建新的流动性仓位', label: 'Add Liquidity', value: 'liquidity' },
-            { hint: '生成当前池子的兑换计划', label: 'Swap', value: 'swap' },
+            { label: '加流动性', value: 'liquidity' },
+            { label: '兑换', value: 'swap' },
           ]}
           value={activeTab}
         />

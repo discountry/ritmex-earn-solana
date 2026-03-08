@@ -9,21 +9,21 @@ import { estimateLiquidityPreview } from '@/lib/position-estimator'
 import type { LiquidityMode, MeteoraPool, PriceStrategy, PriorityLevel } from '@/types/meteora'
 
 const liquidityModeOptions: { hint: string; label: string; value: LiquidityMode }[] = [
-  { hint: '自动按现价对齐', label: 'Balanced', value: 'Balanced' },
-  { hint: '双币手动偏置', label: 'Imbalanced', value: 'Imbalanced' },
-  { hint: '单资产挂单', label: 'One-Sided', value: 'One-Sided' },
+  { hint: '双边', label: '均衡', value: 'Balanced' },
+  { hint: '自定义', label: '偏置', value: 'Imbalanced' },
+  { hint: '单资产', label: '单边', value: 'One-Sided' },
 ]
 
 const priceStrategyOptions: { hint: string; label: string; value: PriceStrategy }[] = [
-  { hint: '默认分布', label: 'Default', value: 'Default' },
-  { hint: '窄区间收敛', label: 'Stable', value: 'Stable' },
-  { hint: '宽区间防抖', label: 'Volatile', value: 'Volatile' },
+  { hint: '常规', label: '默认', value: 'Default' },
+  { hint: '窄区间', label: '稳定', value: 'Stable' },
+  { hint: '宽区间', label: '波动', value: 'Volatile' },
 ]
 
 const priorityOptions: { hint: string; label: string; value: PriorityLevel }[] = [
-  { hint: '最低成本', label: 'Low', value: 'Low' },
-  { hint: '默认推荐', label: 'Medium', value: 'Medium' },
-  { hint: '优先确认', label: 'High', value: 'High' },
+  { hint: '较低', label: '低', value: 'Low' },
+  { hint: '推荐', label: '中', value: 'Medium' },
+  { hint: '较快', label: '高', value: 'High' },
 ]
 
 interface LiquidityFormProps {
@@ -133,18 +133,18 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
       try {
         await onRequireConnect()
       } catch {
-        Alert.alert('连接失败', '请在支持 Solana Mobile 钱包的环境中打开应用。')
+        Alert.alert('请先连接钱包')
       }
       return
     }
 
     if (preview.depositUsd <= 0) {
-      Alert.alert('金额无效', '请输入有效的流动性金额。')
+      Alert.alert('请输入金额')
       return
     }
 
     if (mode !== 'One-Sided' && (parsedAmountX <= 0 || parsedAmountY <= 0)) {
-      Alert.alert('数量不足', '当前模式需要输入双边资产数量。')
+      Alert.alert('请输入双边数量')
       return
     }
 
@@ -158,7 +158,7 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
       useJito,
     })
 
-    Alert.alert('仓位已生成', 'MVP 已把这个仓位同步到账户页，你可以继续管理它。')
+    Alert.alert('已添加仓位')
     setAmountX('')
     setAmountY('')
     setNote('')
@@ -169,9 +169,7 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
       <SectionCard className="gap-4">
         <View className="gap-2">
           <Text className="text-base font-semibold text-ink-900">添加流动性</Text>
-          <Text className="text-sm text-ink-700">
-            围绕当前价格构建平衡、不平衡或单边仓位，并带上优先费与 Jito 执行偏好。
-          </Text>
+          <Text className="text-sm text-ink-700">输入数量并选择模式</Text>
         </View>
 
         <PillSelector onChange={setMode} options={liquidityModeOptions} value={mode} />
@@ -191,9 +189,7 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
         <View className="flex-row items-center justify-between rounded-2xl bg-sand-50 px-4 py-3">
           <View className="flex-1 pr-3">
             <Text className="text-sm font-medium text-ink-900">自动配平</Text>
-            <Text className="text-xs text-ink-700">
-              Balanced 模式下跟随现价 {formatTokenAmount(pool.current_price)} 自动换算
-            </Text>
+            <Text className="text-xs text-ink-700">按当前价格换算</Text>
           </View>
           <Switch onValueChange={setAutoBalance} value={autoBalance && mode === 'Balanced'} />
         </View>
@@ -243,12 +239,12 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
         </View>
 
         <View className="rounded-2xl bg-sand-50 px-4 py-3">
-          <Text className="text-sm font-medium text-ink-900">执行备注</Text>
+          <Text className="text-sm font-medium text-ink-900">备注</Text>
           <TextInput
             className="mt-2 text-base text-ink-900"
             multiline
             onChangeText={setNote}
-            placeholder="例如：围绕资金费收敛，准备在账户页再确认执行"
+            placeholder="可选"
             placeholderTextColor="#847d71"
             value={note}
           />
@@ -258,28 +254,28 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
 
         <View className="flex-row items-center justify-between rounded-2xl bg-sand-50 px-4 py-3">
           <View className="flex-1 pr-3">
-            <Text className="text-sm font-medium text-ink-900">Jito Bundle</Text>
-            <Text className="text-xs text-ink-700">为执行计划保留 MEV 保护路径</Text>
+            <Text className="text-sm font-medium text-ink-900">Jito</Text>
+            <Text className="text-xs text-ink-700">MEV 保护</Text>
           </View>
           <Switch onValueChange={setUseJito} value={useJito} />
         </View>
       </SectionCard>
 
       <SectionCard className="gap-4" tone="muted">
-        <Text className="text-base font-semibold text-ink-900">执行预估</Text>
+        <Text className="text-base font-semibold text-ink-900">预估</Text>
         <View className="flex-row flex-wrap gap-3">
           <View className="min-w-[47%] flex-1 rounded-2xl bg-white px-3 py-3">
-            <Text className="text-xs uppercase tracking-wide text-ink-700">投入规模</Text>
+            <Text className="text-xs uppercase tracking-wide text-ink-700">投入</Text>
             <Text className="mt-1 text-base font-semibold text-ink-900">
               {formatCompactCurrency(preview.depositUsd)}
             </Text>
           </View>
           <View className="min-w-[47%] flex-1 rounded-2xl bg-white px-3 py-3">
-            <Text className="text-xs uppercase tracking-wide text-ink-700">池子占比</Text>
+            <Text className="text-xs uppercase tracking-wide text-ink-700">占比</Text>
             <Text className="mt-1 text-base font-semibold text-ink-900">{formatPercentage(preview.shareOfPool)}</Text>
           </View>
           <View className="min-w-[47%] flex-1 rounded-2xl bg-white px-3 py-3">
-            <Text className="text-xs uppercase tracking-wide text-ink-700">预估日费</Text>
+            <Text className="text-xs uppercase tracking-wide text-ink-700">日收益</Text>
             <Text className="mt-1 text-base font-semibold text-ink-900">
               {formatCompactCurrency(preview.dailyFeesUsd)}
             </Text>
@@ -295,16 +291,15 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
         <View className="rounded-2xl bg-white px-4 py-3">
           <Text className="text-sm font-medium text-ink-900">{preview.executionQuality}</Text>
           <Text className="mt-1 text-sm text-ink-700">
-            {preview.rangeCoverage} · 风格 {preview.riskBand} · 当前池子 24h APR {formatPercentage(pool.apr)}
+            {preview.rangeCoverage} · APR {formatPercentage(pool.apr)}
           </Text>
         </View>
 
         <PrimaryButton
-          label={accountAddress ? '生成仓位计划' : '连接钱包后继续'}
+          label={accountAddress ? '添加流动性' : '连接钱包'}
           onPress={() => {
             void handleSubmit()
           }}
-          subtitle="MVP 会先同步到账户页，便于你继续确认和管理"
           tone="dark"
         />
       </SectionCard>
