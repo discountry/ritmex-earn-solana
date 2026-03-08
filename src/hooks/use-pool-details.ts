@@ -37,7 +37,7 @@ export function usePoolDetails(address?: string) {
           return
         }
 
-        setError(loadError instanceof Error ? loadError.message : '池子详情加载失败')
+        setError(loadError instanceof Error ? loadError.message : 'Unable to load pool details')
       } finally {
         if (isMounted) {
           setIsLoading(false)

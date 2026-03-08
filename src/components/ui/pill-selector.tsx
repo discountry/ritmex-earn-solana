@@ -16,7 +16,7 @@ interface PillSelectorProps<T extends string> {
 
 export function PillSelector<T extends string>({ onChange, options, value }: PillSelectorProps<T>) {
   return (
-    <View className="flex-row flex-wrap gap-2">
+    <View className="flex-row flex-wrap gap-3">
       {options.map((option) => {
         const selected = option.value === value
 
@@ -24,7 +24,7 @@ export function PillSelector<T extends string>({ onChange, options, value }: Pil
           <Pressable
             key={option.value}
             className={cn(
-              'rounded-full border px-3 py-2',
+              'rounded-[24px] border px-4 py-3',
               selected ? 'border-ink-900 bg-ink-900' : 'border-sand-200 bg-white',
             )}
             onPress={() => onChange(option.value)}

@@ -83,7 +83,7 @@ async function requestPools(params: Record<string, string | number | undefined>)
   })
 
   if (!response.ok) {
-    throw new Error(`Meteora API 请求失败: ${response.status}`)
+    throw new Error(`Meteora API request failed: ${response.status}`)
   }
 
   return (await response.json()) as MeteoraPoolsResponse

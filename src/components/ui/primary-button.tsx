@@ -43,7 +43,7 @@ export function PrimaryButton({
   return (
     <Pressable
       className={cn(
-        'min-h-14 rounded-3xl border px-4 py-3',
+        'min-h-16 rounded-[26px] border px-5 py-4',
         buttonClasses[tone],
         isDisabled && 'opacity-50',
         className,
@@ -54,7 +54,7 @@ export function PrimaryButton({
       <View className="flex-row items-center justify-center gap-2">
         {busy ? <ActivityIndicator color={tone === 'ghost' ? '#171512' : '#f6f1e7'} /> : null}
         {!busy && iconName ? <AppIcon color={tone === 'ghost' ? '#171512' : '#f6f1e7'} name={iconName} /> : null}
-        <View className="items-center">
+        <View className="items-center gap-0.5">
           <Text className={cn('text-base font-semibold', textClasses[tone])}>{label}</Text>
           {subtitle ? <Text className={cn('text-xs', textClasses[tone])}>{subtitle}</Text> : null}
         </View>

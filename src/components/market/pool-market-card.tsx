@@ -14,9 +14,9 @@ export function PoolMarketCard({ pool }: PoolMarketCardProps) {
   return (
     <Link href={{ pathname: '/pool/[address]', params: { address: pool.address } }} asChild>
       <Pressable>
-        <SectionCard className="gap-4">
-          <View className="flex-row items-start justify-between gap-4">
-            <View className="flex-1 gap-1">
+        <SectionCard className="gap-5">
+          <View className="flex-row items-start justify-between gap-5">
+            <View className="flex-1 gap-2">
               <View className="flex-row flex-wrap items-center gap-2">
                 <Text className="text-lg font-semibold text-ink-900">{pool.name}</Text>
                 <View className="rounded-full bg-sand-100 px-2 py-1">
@@ -38,31 +38,31 @@ export function PoolMarketCard({ pool }: PoolMarketCardProps) {
             <View className="items-end">
               <View className="flex-row items-center gap-1">
                 <AppIcon color="#6a655d" name="bar-chart-outline" size={14} />
-                <Text className="text-xs uppercase tracking-wide text-ink-700">24h 交易量</Text>
+                <Text className="text-xs uppercase tracking-wide text-ink-700">24H volume</Text>
               </View>
               <Text className="text-base font-semibold text-ink-900">{formatCompactCurrency(pool.volume['24h'])}</Text>
             </View>
           </View>
 
-          <View className="flex-row flex-wrap gap-3">
-            <View className="min-w-[29%] flex-1 rounded-2xl bg-sand-50 px-3 py-3">
+          <View className="flex-row flex-wrap gap-4">
+            <View className="min-w-[29%] flex-1 rounded-3xl bg-sand-50 px-4 py-4">
               <View className="flex-row items-center gap-1">
                 <AppIcon color="#6a655d" name="wallet-outline" size={14} />
                 <Text className="text-xs uppercase tracking-wide text-ink-700">TVL</Text>
               </View>
               <Text className="mt-1 text-base font-semibold text-ink-900">{formatCompactCurrency(pool.tvl)}</Text>
             </View>
-            <View className="min-w-[29%] flex-1 rounded-2xl bg-sand-50 px-3 py-3">
+            <View className="min-w-[29%] flex-1 rounded-3xl bg-sand-50 px-4 py-4">
               <View className="flex-row items-center gap-1">
                 <AppIcon color="#6a655d" name="trending-up-outline" size={14} />
-                <Text className="text-xs uppercase tracking-wide text-ink-700">24h APR</Text>
+                <Text className="text-xs uppercase tracking-wide text-ink-700">24H APR</Text>
               </View>
               <Text className="mt-1 text-base font-semibold text-ink-900">{formatPercentage(pool.apr)}</Text>
             </View>
-            <View className="min-w-[29%] flex-1 rounded-2xl bg-sand-50 px-3 py-3">
+            <View className="min-w-[29%] flex-1 rounded-3xl bg-sand-50 px-4 py-4">
               <View className="flex-row items-center gap-1">
                 <AppIcon color="#6a655d" name="flash-outline" size={14} />
-                <Text className="text-xs uppercase tracking-wide text-ink-700">费率效率</Text>
+                <Text className="text-xs uppercase tracking-wide text-ink-700">Fee ratio</Text>
               </View>
               <Text className="mt-1 text-base font-semibold text-ink-900">
                 {formatPercentage(pool.fee_tvl_ratio['24h'])}
@@ -72,10 +72,10 @@ export function PoolMarketCard({ pool }: PoolMarketCardProps) {
 
           <View className="flex-row items-center justify-between">
             <Text className="text-sm text-ink-700">
-              价格 {pool.token_x.symbol}/{pool.token_y.symbol} · {formatCompactCurrency(pool.current_price)}
+              Price {pool.token_x.symbol}/{pool.token_y.symbol} · {formatCompactCurrency(pool.current_price)}
             </Text>
             <View className="flex-row items-center gap-1">
-              <Text className="text-sm font-semibold text-mint-600">查看</Text>
+              <Text className="text-sm font-semibold text-mint-600">Open</Text>
               <AppIcon color="#23685b" name="chevron-forward" size={16} />
             </View>
           </View>

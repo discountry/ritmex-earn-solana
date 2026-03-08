@@ -33,7 +33,7 @@ export default function Layout() {
           }}
         >
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="pool/[address]" options={{ title: '池子详情' }} />
+          <Stack.Screen name="pool/[address]" options={{ title: 'Pool details' }} />
         </Stack>
       </MvpStoreProvider>
     </MobileWalletProvider>

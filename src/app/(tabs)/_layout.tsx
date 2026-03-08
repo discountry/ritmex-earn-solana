@@ -19,9 +19,9 @@ export default function TabsLayout() {
         tabBarStyle: {
           backgroundColor: '#f0e7d7',
           borderTopColor: '#dbcfb8',
-          height: 68,
-          paddingBottom: 10,
-          paddingTop: 10,
+          height: 76,
+          paddingBottom: 14,
+          paddingTop: 12,
         },
         tabBarLabelStyle: {
           fontSize: 12,
@@ -36,9 +36,9 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: '市场',
-          headerTitle: '市场',
-          tabBarLabel: '市场',
+          title: 'Markets',
+          headerTitle: 'Markets',
+          tabBarLabel: 'Markets',
           tabBarIcon: ({ color, focused }) => (
             <AppIcon color={color} name={focused ? 'compass' : 'compass-outline'} size={20} />
           ),
@@ -47,9 +47,9 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="account"
         options={{
-          title: '账户',
-          headerTitle: '账户',
-          tabBarLabel: '账户',
+          title: 'Portfolio',
+          headerTitle: 'Portfolio',
+          tabBarLabel: 'Portfolio',
           tabBarIcon: ({ color, focused }) => (
             <AppIcon color={color} name={focused ? 'wallet' : 'wallet-outline'} size={20} />
           ),

@@ -1,32 +1,32 @@
 import type { DraftPosition, LiquidityMode, PriceStrategy, PriorityLevel } from '@/types/meteora'
 
-const compactFormatter = new Intl.NumberFormat('zh-CN', {
+const compactFormatter = new Intl.NumberFormat('en-US', {
   notation: 'compact',
   maximumFractionDigits: 2,
 })
 
-const currencyFormatter = new Intl.NumberFormat('zh-CN', {
+const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',
   maximumFractionDigits: 2,
 })
 
-const compactCurrencyFormatter = new Intl.NumberFormat('zh-CN', {
+const compactCurrencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',
   notation: 'compact',
   maximumFractionDigits: 2,
 })
 
-const numberFormatter = new Intl.NumberFormat('zh-CN', {
+const numberFormatter = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 2,
 })
 
-const preciseFormatter = new Intl.NumberFormat('zh-CN', {
+const preciseFormatter = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 4,
 })
 
-const percentFormatter = new Intl.NumberFormat('zh-CN', {
+const percentFormatter = new Intl.NumberFormat('en-US', {
   style: 'percent',
   maximumFractionDigits: 2,
 })
@@ -67,52 +67,52 @@ export function formatTimeAgo(timestamp: number) {
   const diffMinutes = Math.floor((Date.now() - timestamp) / 60000)
 
   if (diffMinutes < 1) {
-    return '刚刚'
+    return 'Just now'
   }
 
   if (diffMinutes < 60) {
-    return `${diffMinutes} 分钟前`
+    return `${diffMinutes}m ago`
   }
 
   const diffHours = Math.floor(diffMinutes / 60)
   if (diffHours < 24) {
-    return `${diffHours} 小时前`
+    return `${diffHours}h ago`
   }
 
   const diffDays = Math.floor(diffHours / 24)
-  return `${diffDays} 天前`
+  return `${diffDays}d ago`
 }
 
 export function formatModeLabel(mode: LiquidityMode) {
   switch (mode) {
     case 'Balanced':
-      return '均衡'
+      return 'Balanced'
     case 'Imbalanced':
-      return '偏置'
+      return 'Custom'
     case 'One-Sided':
-      return '单边'
+      return 'One-sided'
   }
 }
 
 export function formatStrategyLabel(strategy: PriceStrategy) {
   switch (strategy) {
     case 'Default':
-      return '默认'
+      return 'Default'
     case 'Stable':
-      return '稳定'
+      return 'Stable'
     case 'Volatile':
-      return '波动'
+      return 'Volatile'
   }
 }
 
 export function formatPriorityLabel(priority: PriorityLevel) {
   switch (priority) {
     case 'Low':
-      return '低'
+      return 'Low'
     case 'Medium':
-      return '中'
+      return 'Medium'
     case 'High':
-      return '高'
+      return 'High'
   }
 }
 

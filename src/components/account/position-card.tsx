@@ -25,14 +25,14 @@ export function PositionCard({ onClose, onCollect, position }: PositionCardProps
   const isClosed = position.status === 'Closed'
 
   return (
-    <SectionCard className="gap-4">
+    <SectionCard className="gap-5">
       <Link href={{ pathname: '/pool/[address]', params: { address: position.poolAddress } }} asChild>
-        <Pressable className="gap-1">
+        <Pressable className="gap-2">
           <View className="flex-row items-center justify-between gap-3">
             <Text className="text-lg font-semibold text-ink-900">{position.poolName}</Text>
             <View className={`rounded-full px-2 py-1 ${isClosed ? 'bg-sand-100' : 'bg-clay-100'}`}>
               <Text className={`text-[11px] font-semibold ${isClosed ? 'text-ink-700' : 'text-clay-500'}`}>
-                {isClosed ? '已关闭' : '活跃'}
+                {isClosed ? 'Closed' : 'Active'}
               </Text>
             </View>
           </View>
@@ -48,7 +48,7 @@ export function PositionCard({ onClose, onCollect, position }: PositionCardProps
                 name={position.useJito ? 'shield-checkmark-outline' : 'flash-outline'}
                 size={14}
               />
-              <Text className="text-xs text-ink-700">{position.useJito ? 'Jito' : '标准'}</Text>
+              <Text className="text-xs text-ink-700">{position.useJito ? 'Jito' : 'Standard'}</Text>
             </View>
             <View className="flex-row items-center gap-1">
               <AppIcon color="#6a655d" name="time-outline" size={14} />
@@ -58,9 +58,9 @@ export function PositionCard({ onClose, onCollect, position }: PositionCardProps
         </Pressable>
       </Link>
 
-      <View className="flex-row flex-wrap gap-3">
-        <View className="min-w-[47%] flex-1 rounded-2xl bg-sand-50 px-3 py-3">
-          <Text className="text-xs uppercase tracking-wide text-ink-700">规模</Text>
+      <View className="flex-row flex-wrap gap-4">
+        <View className="min-w-[47%] flex-1 rounded-3xl bg-sand-50 px-4 py-4">
+          <Text className="text-xs uppercase tracking-wide text-ink-700">Size</Text>
           <Text className="mt-1 text-base font-semibold text-ink-900">
             {formatCompactCurrency(position.depositUsd)}
           </Text>
@@ -69,19 +69,19 @@ export function PositionCard({ onClose, onCollect, position }: PositionCardProps
             {position.tokenYSymbol}
           </Text>
         </View>
-        <View className="min-w-[47%] flex-1 rounded-2xl bg-sand-50 px-3 py-3">
-          <Text className="text-xs uppercase tracking-wide text-ink-700">未领取</Text>
+        <View className="min-w-[47%] flex-1 rounded-3xl bg-sand-50 px-4 py-4">
+          <Text className="text-xs uppercase tracking-wide text-ink-700">Unclaimed</Text>
           <Text className="mt-1 text-base font-semibold text-ink-900">{formatCompactCurrency(accruedFees)}</Text>
-          <Text className="mt-1 text-xs text-ink-700">已领取 {formatCompactCurrency(position.claimedFeesUsd)}</Text>
+          <Text className="mt-1 text-xs text-ink-700">Collected {formatCompactCurrency(position.claimedFeesUsd)}</Text>
         </View>
       </View>
 
-      <View className="flex-row gap-3">
+      <View className="flex-row gap-4">
         <PrimaryButton
           className="flex-1"
           disabled={isClosed}
           iconName="cash-outline"
-          label="收取"
+          label="Collect"
           onPress={onCollect}
           tone="ghost"
         />
@@ -89,7 +89,7 @@ export function PositionCard({ onClose, onCollect, position }: PositionCardProps
           className="flex-1"
           disabled={isClosed}
           iconName="close-circle-outline"
-          label="关闭"
+          label="Close"
           onPress={onClose}
           tone="dark"
         />

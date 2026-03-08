@@ -39,7 +39,7 @@ export function useMarketPools({ pageSize = 12, query = '', sortKey = 'volume' }
           return
         }
 
-        setError(loadError instanceof Error ? loadError.message : '池子数据加载失败')
+        setError(loadError instanceof Error ? loadError.message : 'Unable to load pool data')
       } finally {
         if (isMounted) {
           setIsLoading(false)

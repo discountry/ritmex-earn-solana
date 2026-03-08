@@ -9,21 +9,21 @@ import { estimateLiquidityPreview } from '@/lib/position-estimator'
 import type { LiquidityMode, MeteoraPool, PriceStrategy, PriorityLevel } from '@/types/meteora'
 
 const liquidityModeOptions: { hint: string; label: string; value: LiquidityMode }[] = [
-  { hint: '双边', label: '均衡', value: 'Balanced' },
-  { hint: '自定义', label: '偏置', value: 'Imbalanced' },
-  { hint: '单资产', label: '单边', value: 'One-Sided' },
+  { hint: 'Two assets', label: 'Balanced', value: 'Balanced' },
+  { hint: 'Flexible', label: 'Custom', value: 'Imbalanced' },
+  { hint: 'Single asset', label: 'One-sided', value: 'One-Sided' },
 ]
 
 const priceStrategyOptions: { hint: string; label: string; value: PriceStrategy }[] = [
-  { hint: '常规', label: '默认', value: 'Default' },
-  { hint: '窄区间', label: '稳定', value: 'Stable' },
-  { hint: '宽区间', label: '波动', value: 'Volatile' },
+  { hint: 'Baseline', label: 'Default', value: 'Default' },
+  { hint: 'Tighter range', label: 'Stable', value: 'Stable' },
+  { hint: 'Wider range', label: 'Volatile', value: 'Volatile' },
 ]
 
 const priorityOptions: { hint: string; label: string; value: PriorityLevel }[] = [
-  { hint: '较低', label: '低', value: 'Low' },
-  { hint: '推荐', label: '中', value: 'Medium' },
-  { hint: '较快', label: '高', value: 'High' },
+  { hint: 'Saver', label: 'Low', value: 'Low' },
+  { hint: 'Balanced', label: 'Medium', value: 'Medium' },
+  { hint: 'Faster', label: 'High', value: 'High' },
 ]
 
 interface LiquidityFormProps {
@@ -133,18 +133,18 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
       try {
         await onRequireConnect()
       } catch {
-        Alert.alert('请先连接钱包')
+        Alert.alert('Connect wallet first')
       }
       return
     }
 
     if (preview.depositUsd <= 0) {
-      Alert.alert('请输入金额')
+      Alert.alert('Enter an amount')
       return
     }
 
     if (mode !== 'One-Sided' && (parsedAmountX <= 0 || parsedAmountY <= 0)) {
-      Alert.alert('请输入双边数量')
+      Alert.alert('Enter both token amounts')
       return
     }
 
@@ -158,18 +158,18 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
       useJito,
     })
 
-    Alert.alert('已添加仓位')
+    Alert.alert('Position added')
     setAmountX('')
     setAmountY('')
     setNote('')
   }
 
   return (
-    <View className="gap-4">
-      <SectionCard className="gap-4">
+    <View className="gap-5">
+      <SectionCard className="gap-5">
         <View className="gap-2">
-          <Text className="text-base font-semibold text-ink-900">添加流动性</Text>
-          <Text className="text-sm text-ink-700">输入数量并选择模式</Text>
+          <Text className="text-base font-semibold text-ink-900">Add liquidity</Text>
+          <Text className="text-sm leading-6 text-ink-700">Set amount, range style, and execution mode.</Text>
         </View>
 
         <PillSelector onChange={setMode} options={liquidityModeOptions} value={mode} />
@@ -179,25 +179,25 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
           <PillSelector
             onChange={setSingleAsset}
             options={[
-              { label: `仅 ${pool.token_x.symbol}`, value: 'x' },
-              { label: `仅 ${pool.token_y.symbol}`, value: 'y' },
+              { label: `Only ${pool.token_x.symbol}`, value: 'x' },
+              { label: `Only ${pool.token_y.symbol}`, value: 'y' },
             ]}
             value={singleAsset}
           />
         ) : null}
 
-        <View className="flex-row items-center justify-between rounded-2xl bg-sand-50 px-4 py-3">
+        <View className="flex-row items-center justify-between rounded-3xl bg-sand-50 px-5 py-4">
           <View className="flex-1 pr-3">
-            <Text className="text-sm font-medium text-ink-900">自动配平</Text>
-            <Text className="text-xs text-ink-700">按当前价格换算</Text>
+            <Text className="text-sm font-medium text-ink-900">Auto-balance</Text>
+            <Text className="text-xs text-ink-700">Match the current price.</Text>
           </View>
           <Switch onValueChange={setAutoBalance} value={autoBalance && mode === 'Balanced'} />
         </View>
 
-        <View className="gap-3">
-          <View className="rounded-2xl bg-sand-50 px-4 py-3">
+        <View className="gap-4">
+          <View className="rounded-3xl bg-sand-50 px-5 py-4">
             <View className="flex-row items-center justify-between">
-              <Text className="text-sm font-medium text-ink-900">{pool.token_x.symbol} 数量</Text>
+              <Text className="text-sm font-medium text-ink-900">{pool.token_x.symbol} amount</Text>
               <Text className="text-xs text-ink-700">
                 ≈ {formatCompactCurrency(parsedAmountX * pool.token_x.price)}
               </Text>
@@ -210,15 +210,15 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
                 setLastEditedField('x')
                 setAmountX(sanitizeDecimal(value))
               }}
-              placeholder={`输入 ${pool.token_x.symbol}`}
+              placeholder={`Enter ${pool.token_x.symbol}`}
               placeholderTextColor="#847d71"
               value={amountX}
             />
           </View>
 
-          <View className="rounded-2xl bg-sand-50 px-4 py-3">
+          <View className="rounded-3xl bg-sand-50 px-5 py-4">
             <View className="flex-row items-center justify-between">
-              <Text className="text-sm font-medium text-ink-900">{pool.token_y.symbol} 数量</Text>
+              <Text className="text-sm font-medium text-ink-900">{pool.token_y.symbol} amount</Text>
               <Text className="text-xs text-ink-700">
                 ≈ {formatCompactCurrency(parsedAmountY * pool.token_y.price)}
               </Text>
@@ -231,20 +231,20 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
                 setLastEditedField('y')
                 setAmountY(sanitizeDecimal(value))
               }}
-              placeholder={`输入 ${pool.token_y.symbol}`}
+              placeholder={`Enter ${pool.token_y.symbol}`}
               placeholderTextColor="#847d71"
               value={amountY}
             />
           </View>
         </View>
 
-        <View className="rounded-2xl bg-sand-50 px-4 py-3">
-          <Text className="text-sm font-medium text-ink-900">备注</Text>
+        <View className="rounded-3xl bg-sand-50 px-5 py-4">
+          <Text className="text-sm font-medium text-ink-900">Note</Text>
           <TextInput
             className="mt-2 text-base text-ink-900"
             multiline
             onChangeText={setNote}
-            placeholder="可选"
+            placeholder="Optional"
             placeholderTextColor="#847d71"
             value={note}
           />
@@ -252,43 +252,43 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
 
         <PillSelector onChange={setPriorityLevel} options={priorityOptions} value={priorityLevel} />
 
-        <View className="flex-row items-center justify-between rounded-2xl bg-sand-50 px-4 py-3">
+        <View className="flex-row items-center justify-between rounded-3xl bg-sand-50 px-5 py-4">
           <View className="flex-1 pr-3">
             <Text className="text-sm font-medium text-ink-900">Jito</Text>
-            <Text className="text-xs text-ink-700">MEV 保护</Text>
+            <Text className="text-xs text-ink-700">MEV protection</Text>
           </View>
           <Switch onValueChange={setUseJito} value={useJito} />
         </View>
       </SectionCard>
 
-      <SectionCard className="gap-4" tone="muted">
-        <Text className="text-base font-semibold text-ink-900">预估</Text>
-        <View className="flex-row flex-wrap gap-3">
-          <View className="min-w-[47%] flex-1 rounded-2xl bg-white px-3 py-3">
-            <Text className="text-xs uppercase tracking-wide text-ink-700">投入</Text>
+      <SectionCard className="gap-5" tone="muted">
+        <Text className="text-base font-semibold text-ink-900">Preview</Text>
+        <View className="flex-row flex-wrap gap-4">
+          <View className="min-w-[47%] flex-1 rounded-3xl bg-white px-4 py-4">
+            <Text className="text-xs uppercase tracking-wide text-ink-700">Deposit</Text>
             <Text className="mt-1 text-base font-semibold text-ink-900">
               {formatCompactCurrency(preview.depositUsd)}
             </Text>
           </View>
-          <View className="min-w-[47%] flex-1 rounded-2xl bg-white px-3 py-3">
-            <Text className="text-xs uppercase tracking-wide text-ink-700">占比</Text>
+          <View className="min-w-[47%] flex-1 rounded-3xl bg-white px-4 py-4">
+            <Text className="text-xs uppercase tracking-wide text-ink-700">Pool share</Text>
             <Text className="mt-1 text-base font-semibold text-ink-900">{formatPercentage(preview.shareOfPool)}</Text>
           </View>
-          <View className="min-w-[47%] flex-1 rounded-2xl bg-white px-3 py-3">
-            <Text className="text-xs uppercase tracking-wide text-ink-700">日收益</Text>
+          <View className="min-w-[47%] flex-1 rounded-3xl bg-white px-4 py-4">
+            <Text className="text-xs uppercase tracking-wide text-ink-700">Daily fees</Text>
             <Text className="mt-1 text-base font-semibold text-ink-900">
               {formatCompactCurrency(preview.dailyFeesUsd)}
             </Text>
           </View>
-          <View className="min-w-[47%] flex-1 rounded-2xl bg-white px-3 py-3">
-            <Text className="text-xs uppercase tracking-wide text-ink-700">优先费</Text>
+          <View className="min-w-[47%] flex-1 rounded-3xl bg-white px-4 py-4">
+            <Text className="text-xs uppercase tracking-wide text-ink-700">Priority fee</Text>
             <Text className="mt-1 text-base font-semibold text-ink-900">
               {formatTokenAmount(preview.priorityFeeSol)} SOL
             </Text>
           </View>
         </View>
 
-        <View className="rounded-2xl bg-white px-4 py-3">
+        <View className="rounded-3xl bg-white px-5 py-4">
           <Text className="text-sm font-medium text-ink-900">{preview.executionQuality}</Text>
           <Text className="mt-1 text-sm text-ink-700">
             {preview.rangeCoverage} · APR {formatPercentage(pool.apr)}
@@ -297,7 +297,7 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
 
         <PrimaryButton
           iconName={accountAddress ? 'add-circle-outline' : 'wallet-outline'}
-          label={accountAddress ? '添加流动性' : '连接钱包'}
+          label={accountAddress ? 'Add liquidity' : 'Connect wallet'}
           onPress={() => {
             void handleSubmit()
           }}

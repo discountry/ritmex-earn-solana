@@ -26,14 +26,14 @@ export function estimateLiquidityPreview(
   const normalizedApr = Math.max(pool.apr, 0)
   const dailyFeesUsd = depositUsd * (normalizedApr / 365)
   const priorityFeeSol = 0.00005 * priorityMultipliers[priorityLevel]
-  const executionQuality = useJito ? 'Jito' : '标准'
+  const executionQuality = useJito ? 'Jito' : 'Standard'
 
   return {
     dailyFeesUsd,
     depositUsd,
     executionQuality,
     priorityFeeSol,
-    rangeCoverage: mode === 'Balanced' ? '均衡' : mode === 'Imbalanced' ? '偏置' : '单边',
+    rangeCoverage: mode === 'Balanced' ? 'Balanced' : mode === 'Imbalanced' ? 'Custom' : 'One-sided',
     shareOfPool,
   }
 }
@@ -56,7 +56,7 @@ export function estimateSwapPreview(
 
   return {
     amountOut,
-    executionLane: useJito ? 'Jito' : '标准',
+    executionLane: useJito ? 'Jito' : 'Standard',
     feeUsd: inputUsd * feePct,
     inputUsd,
     priceImpactPct,

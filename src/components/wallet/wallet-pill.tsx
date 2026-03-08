@@ -11,10 +11,10 @@ interface WalletPillProps {
 
 export function WalletPill({ address, connected, onPress }: WalletPillProps) {
   return (
-    <Pressable className="rounded-full border border-sand-200 bg-white px-4 py-2" onPress={onPress}>
+    <Pressable className="rounded-full border border-sand-200 bg-white px-4 py-3" onPress={onPress}>
       <View className="flex-row items-center gap-2">
         <View
-          className={`h-7 w-7 items-center justify-center rounded-full ${connected ? 'bg-mint-100' : 'bg-clay-100'}`}
+          className={`h-8 w-8 items-center justify-center rounded-full ${connected ? 'bg-mint-100' : 'bg-clay-100'}`}
         >
           <AppIcon
             color={connected ? '#23685b' : '#a24b2b'}
@@ -22,7 +22,9 @@ export function WalletPill({ address, connected, onPress }: WalletPillProps) {
             size={16}
           />
         </View>
-        <Text className="text-sm font-medium text-ink-900">{connected ? shortAddress(address ?? '') : '连接钱包'}</Text>
+        <Text className="text-sm font-medium text-ink-900">
+          {connected ? shortAddress(address ?? '') : 'Connect wallet'}
+        </Text>
       </View>
     </Pressable>
   )

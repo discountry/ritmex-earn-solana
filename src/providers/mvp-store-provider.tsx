@@ -61,7 +61,7 @@ export function MvpStoreProvider({ children }: React.PropsWithChildren) {
     pushActivity({
       kind: 'liquidity',
       ownerAddress: input.ownerAddress,
-      title: '新增仓位',
+      title: 'Position added',
       subtitle: `${input.pool.name} · ${formatModeLabel(input.mode)} · ${formatStrategyLabel(input.strategy)}`,
     })
 
@@ -94,7 +94,7 @@ export function MvpStoreProvider({ children }: React.PropsWithChildren) {
       pushActivity({
         kind: 'collect',
         ownerAddress: updatedPosition.ownerAddress,
-        title: '收取费用',
+        title: 'Fees collected',
         subtitle: updatedPosition.poolName,
       })
     }
@@ -124,7 +124,7 @@ export function MvpStoreProvider({ children }: React.PropsWithChildren) {
       pushActivity({
         kind: 'close',
         ownerAddress: closedPosition.ownerAddress,
-        title: '关闭仓位',
+        title: 'Position closed',
         subtitle: `${closedPosition.poolName} · ${formatPriorityLabel(closedPosition.priorityLevel)}`,
       })
     }
@@ -134,7 +134,7 @@ export function MvpStoreProvider({ children }: React.PropsWithChildren) {
     pushActivity({
       kind: 'swap',
       ownerAddress: input.ownerAddress,
-      title: '兑换',
+      title: 'Swap',
       subtitle: `${input.direction === 'xToY' ? input.pool.token_x.symbol : input.pool.token_y.symbol} -> ${
         input.direction === 'xToY' ? input.pool.token_y.symbol : input.pool.token_x.symbol
       } · ${formatPriorityLabel(input.priorityLevel)}`,
@@ -161,7 +161,7 @@ export function useMvpStore() {
   const context = React.use(MvpStoreContext)
 
   if (!context) {
-    throw new Error('useMvpStore 必须在 MvpStoreProvider 内使用')
+    throw new Error('useMvpStore must be used inside MvpStoreProvider')
   }
 
   return context

@@ -13,9 +13,9 @@ import { formatCompactCurrency, formatTimeAgo, shortAddress } from '@/lib/format
 import { getAccruedFeesUsd } from '@/lib/position-estimator'
 
 const PAGE_CONTENT_STYLE = {
-  gap: 16,
-  padding: 20,
-  paddingBottom: 120,
+  gap: 20,
+  padding: 24,
+  paddingBottom: 132,
 }
 
 export default function AccountScreen() {
@@ -34,7 +34,7 @@ export default function AccountScreen() {
     try {
       await connect()
     } catch {
-      Alert.alert('钱包连接失败')
+      Alert.alert('Unable to connect wallet')
     }
   }
 
@@ -42,7 +42,7 @@ export default function AccountScreen() {
     try {
       await disconnect()
     } catch {
-      Alert.alert('断开失败')
+      Alert.alert('Unable to disconnect wallet')
     }
   }
 
@@ -52,11 +52,11 @@ export default function AccountScreen() {
       contentInsetAdjustmentBehavior="automatic"
       showsVerticalScrollIndicator={false}
     >
-      <SectionCard className="gap-5" tone="inverse">
-        <View className="flex-row items-start justify-between gap-3">
-          <View className="flex-1 gap-2">
-            <Text className="text-3xl font-semibold text-sand-50">账户</Text>
-            <Text className="text-sm leading-6 text-sand-100">查看仓位和记录</Text>
+      <SectionCard className="gap-6" tone="inverse">
+        <View className="flex-row items-start justify-between gap-4">
+          <View className="flex-1 gap-3">
+            <Text className="text-3xl font-semibold text-sand-50">Portfolio</Text>
+            <Text className="text-sm leading-6 text-sand-100">Review positions, fees, and recent activity.</Text>
           </View>
           <WalletPill
             address={accountAddress}
@@ -66,46 +66,51 @@ export default function AccountScreen() {
         </View>
 
         {accountAddress ? (
-          <View className="rounded-3xl bg-white/10 px-4 py-4">
-            <Text className="text-xs uppercase tracking-wide text-sand-100">钱包</Text>
+          <View className="rounded-[28px] bg-white/10 px-5 py-5">
+            <Text className="text-xs uppercase tracking-wide text-sand-100">Wallet</Text>
             <Text selectable className="mt-1 text-lg font-semibold text-sand-50">
               {shortAddress(accountAddress)}
             </Text>
-            <Text className="mt-2 text-sm text-sand-100">已连接</Text>
+            <Text className="mt-2 text-sm text-sand-100">Connected</Text>
           </View>
         ) : (
-          <PrimaryButton iconName="wallet-outline" label="连接钱包" onPress={() => void handleConnect()} tone="brand" />
+          <PrimaryButton
+            iconName="wallet-outline"
+            label="Connect wallet"
+            onPress={() => void handleConnect()}
+            tone="brand"
+          />
         )}
       </SectionCard>
 
-      <View className="flex-row flex-wrap gap-3">
+      <View className="flex-row flex-wrap gap-4">
         <SectionCard className="min-w-[47%] flex-1 gap-2">
-          <Text className="text-xs uppercase tracking-wide text-ink-700">活跃仓位</Text>
+          <Text className="text-xs uppercase tracking-wide text-ink-700">Open positions</Text>
           <Text className="text-2xl font-semibold text-ink-900">{activePositions.length}</Text>
-          <Text className="text-sm text-ink-700">总投入 {formatCompactCurrency(totalCapital)}</Text>
+          <Text className="text-sm text-ink-700">Capital {formatCompactCurrency(totalCapital)}</Text>
         </SectionCard>
         <SectionCard className="min-w-[47%] flex-1 gap-2">
-          <Text className="text-xs uppercase tracking-wide text-ink-700">待领取费用</Text>
+          <Text className="text-xs uppercase tracking-wide text-ink-700">Unclaimed fees</Text>
           <Text className="text-2xl font-semibold text-ink-900">{formatCompactCurrency(totalUnclaimedFees)}</Text>
-          <Text className="text-sm text-ink-700">累计收取 {formatCompactCurrency(totalClaimedFees)}</Text>
+          <Text className="text-sm text-ink-700">Collected {formatCompactCurrency(totalClaimedFees)}</Text>
         </SectionCard>
       </View>
 
-      <SectionCard className="gap-4" tone="muted">
-        <Text className="text-base font-semibold text-ink-900">仓位</Text>
+      <SectionCard className="gap-5" tone="muted">
+        <Text className="text-base font-semibold text-ink-900">Positions</Text>
 
         {accountAddress && accountPositions.length > 0 ? (
-          <View className="gap-3">
+          <View className="gap-4">
             {accountPositions.map((position) => (
               <PositionCard
                 key={position.id}
                 onClose={() => {
                   closePosition(position.id)
-                  Alert.alert('已关闭仓位')
+                  Alert.alert('Position closed')
                 }}
                 onCollect={() => {
                   collectPositionFees(position.id)
-                  Alert.alert('已收取费用')
+                  Alert.alert('Fees collected')
                 }}
                 position={position}
               />
@@ -113,11 +118,11 @@ export default function AccountScreen() {
           </View>
         ) : (
           <SectionCard className="gap-3">
-            <Text className="text-base font-semibold text-ink-900">暂无仓位</Text>
-            <Text className="text-sm text-ink-700">去看看热门池</Text>
+            <Text className="text-base font-semibold text-ink-900">No positions yet</Text>
+            <Text className="text-sm text-ink-700">Open a pool to create your first position.</Text>
             <PrimaryButton
               iconName="compass-outline"
-              label="查看热门池"
+              label="Browse markets"
               onPress={() =>
                 router.push({ pathname: '/pool/[address]', params: { address: fallbackPools[0].address } })
               }
@@ -127,13 +132,13 @@ export default function AccountScreen() {
         )}
       </SectionCard>
 
-      <SectionCard className="gap-4">
-        <Text className="text-base font-semibold text-ink-900">记录</Text>
+      <SectionCard className="gap-5">
+        <Text className="text-base font-semibold text-ink-900">Activity</Text>
 
         {accountAddress && accountActivity.length > 0 ? (
-          <View className="gap-3">
+          <View className="gap-4">
             {accountActivity.map((item) => (
-              <View key={item.id} className="rounded-2xl bg-sand-50 px-4 py-3">
+              <View key={item.id} className="rounded-3xl bg-sand-50 px-5 py-4">
                 <Text className="text-sm font-medium text-ink-900">{item.title}</Text>
                 <Text className="mt-1 text-sm text-ink-700">{item.subtitle}</Text>
                 <Text className="mt-2 text-xs text-ink-700">{formatTimeAgo(item.createdAt)}</Text>
@@ -141,7 +146,7 @@ export default function AccountScreen() {
             ))}
           </View>
         ) : (
-          <Text className="text-sm text-ink-700">暂无记录</Text>
+          <Text className="text-sm text-ink-700">No recent activity.</Text>
         )}
       </SectionCard>
     </ScrollView>

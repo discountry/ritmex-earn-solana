@@ -12,9 +12,9 @@ import { formatCompactCurrency, formatPercentage, formatTimeAgo, shortAddress } 
 import { useMvpStore } from '@/providers/mvp-store-provider'
 
 const PAGE_CONTENT_STYLE = {
-  gap: 16,
-  padding: 20,
-  paddingBottom: 120,
+  gap: 20,
+  padding: 24,
+  paddingBottom: 132,
 }
 
 export default function PoolDetailsScreen() {
@@ -29,7 +29,7 @@ export default function PoolDetailsScreen() {
     try {
       await connect()
     } catch {
-      Alert.alert('钱包连接失败')
+      Alert.alert('Unable to connect wallet')
     }
   }
 
@@ -41,10 +41,10 @@ export default function PoolDetailsScreen() {
         refreshControl={<RefreshControl onRefresh={refresh} refreshing={isLoading} tintColor="#23685b" />}
         showsVerticalScrollIndicator={false}
       >
-        <Stack.Screen options={{ title: '池子详情' }} />
+        <Stack.Screen options={{ title: 'Pool details' }} />
         <SectionCard className="gap-2">
-          <Text className="text-base font-semibold text-ink-900">{isLoading ? '加载中…' : '未找到池子'}</Text>
-          <Text className="text-sm text-ink-700">下拉刷新重试</Text>
+          <Text className="text-base font-semibold text-ink-900">{isLoading ? 'Loading...' : 'Pool not found'}</Text>
+          <Text className="text-sm text-ink-700">Pull to refresh and try again.</Text>
         </SectionCard>
       </ScrollView>
     )
@@ -61,8 +61,8 @@ export default function PoolDetailsScreen() {
     >
       <Stack.Screen options={{ title: pool.name }} />
 
-      <SectionCard className="gap-5" tone="inverse">
-        <View className="gap-2">
+      <SectionCard className="gap-6" tone="inverse">
+        <View className="gap-3">
           <Text className="text-3xl font-semibold text-sand-50">{pool.name}</Text>
           <Text selectable className="text-sm text-sand-100">
             {shortAddress(pool.address)} · {pool.token_x.symbol}/{pool.token_y.symbol}
@@ -73,23 +73,23 @@ export default function PoolDetailsScreen() {
           </Text>
         </View>
 
-        <View className="flex-row flex-wrap gap-3">
-          <View className="min-w-[47%] flex-1 rounded-2xl bg-white/10 px-3 py-3">
+        <View className="flex-row flex-wrap gap-4">
+          <View className="min-w-[47%] flex-1 rounded-3xl bg-white/10 px-4 py-4">
             <Text className="text-xs uppercase tracking-wide text-sand-100">TVL</Text>
             <Text className="mt-1 text-base font-semibold text-sand-50">{formatCompactCurrency(pool.tvl)}</Text>
           </View>
-          <View className="min-w-[47%] flex-1 rounded-2xl bg-white/10 px-3 py-3">
-            <Text className="text-xs uppercase tracking-wide text-sand-100">24h 成交</Text>
+          <View className="min-w-[47%] flex-1 rounded-3xl bg-white/10 px-4 py-4">
+            <Text className="text-xs uppercase tracking-wide text-sand-100">24H volume</Text>
             <Text className="mt-1 text-base font-semibold text-sand-50">
               {formatCompactCurrency(pool.volume['24h'])}
             </Text>
           </View>
-          <View className="min-w-[47%] flex-1 rounded-2xl bg-white/10 px-3 py-3">
-            <Text className="text-xs uppercase tracking-wide text-sand-100">24h APR</Text>
+          <View className="min-w-[47%] flex-1 rounded-3xl bg-white/10 px-4 py-4">
+            <Text className="text-xs uppercase tracking-wide text-sand-100">24H APR</Text>
             <Text className="mt-1 text-base font-semibold text-sand-50">{formatPercentage(pool.apr)}</Text>
           </View>
-          <View className="min-w-[47%] flex-1 rounded-2xl bg-white/10 px-3 py-3">
-            <Text className="text-xs uppercase tracking-wide text-sand-100">基础费率</Text>
+          <View className="min-w-[47%] flex-1 rounded-3xl bg-white/10 px-4 py-4">
+            <Text className="text-xs uppercase tracking-wide text-sand-100">Base fee</Text>
             <Text className="mt-1 text-base font-semibold text-sand-50">
               {formatPercentage(pool.pool_config.base_fee_pct / 100)}
             </Text>
@@ -97,18 +97,18 @@ export default function PoolDetailsScreen() {
         </View>
 
         <Text className="text-xs text-sand-100">
-          {isFallback ? '离线数据' : '实时数据'} · {formatTimeAgo(Date.now())}
+          {isFallback ? 'Offline snapshot' : 'Live data'} · Updated {formatTimeAgo(Date.now())}
         </Text>
       </SectionCard>
 
-      <SectionCard className="gap-4" tone="muted">
-        <Text className="text-base font-semibold text-ink-900">操作</Text>
+      <SectionCard className="gap-5" tone="muted">
+        <Text className="text-base font-semibold text-ink-900">Actions</Text>
 
         <PillSelector
           onChange={setActiveTab}
           options={[
-            { label: '加流动性', value: 'liquidity' },
-            { label: '兑换', value: 'swap' },
+            { label: 'Add liquidity', value: 'liquidity' },
+            { label: 'Swap', value: 'swap' },
           ]}
           value={activeTab}
         />

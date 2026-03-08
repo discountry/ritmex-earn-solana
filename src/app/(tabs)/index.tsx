@@ -11,16 +11,16 @@ import { formatCompactCurrency, formatPercentage, formatTimeAgo } from '@/lib/fo
 import type { MarketSortKey } from '@/types/meteora'
 
 const PAGE_CONTENT_STYLE = {
-  gap: 16,
-  padding: 20,
-  paddingBottom: 120,
+  gap: 20,
+  padding: 24,
+  paddingBottom: 132,
 }
 
 const sortOptions: { hint: string; label: string; value: MarketSortKey }[] = [
-  { hint: '24h 成交', label: '成交量', value: 'volume' },
-  { hint: '资金规模', label: 'TVL', value: 'tvl' },
-  { hint: '收益表现', label: 'APR', value: 'apr' },
-  { hint: '费率效率', label: '费率', value: 'fees' },
+  { hint: '24H flow', label: 'Volume', value: 'volume' },
+  { hint: 'Locked capital', label: 'TVL', value: 'tvl' },
+  { hint: 'Yield view', label: 'APR', value: 'apr' },
+  { hint: 'Pool take rate', label: 'Fees', value: 'fees' },
 ]
 
 export default function MarketsScreen() {
@@ -46,30 +46,27 @@ export default function MarketsScreen() {
       refreshControl={<RefreshControl onRefresh={refresh} refreshing={isLoading} tintColor="#23685b" />}
       showsVerticalScrollIndicator={false}
     >
-      <SectionCard className="gap-5" tone="inverse">
+      <SectionCard className="gap-6" tone="inverse">
         <View className="flex-row flex-wrap items-center gap-2">
           <View className="rounded-full bg-mint-600 px-3 py-1">
             <Text className="text-[11px] font-semibold uppercase tracking-wide text-white">DLMM</Text>
           </View>
           <View className="rounded-full bg-white/10 px-3 py-1">
-            <Text className="text-[11px] font-semibold uppercase tracking-wide text-sand-100">主网</Text>
-          </View>
-          <View className="rounded-full bg-white/10 px-3 py-1">
-            <Text className="text-[11px] font-semibold uppercase tracking-wide text-sand-100">热门</Text>
+            <Text className="text-[11px] font-semibold uppercase tracking-wide text-sand-100">Mainnet</Text>
           </View>
         </View>
 
-        <View className="gap-2">
-          <Text className="text-3xl font-semibold text-sand-50">热门 DLMM 池</Text>
-          <Text className="text-sm leading-6 text-sand-100">查看交易量、TVL 和 APR</Text>
+        <View className="gap-3">
+          <Text className="text-3xl font-semibold text-sand-50">DLMM markets</Text>
+          <Text className="text-sm leading-6 text-sand-100">Scan volume, TVL, and APR without visual noise.</Text>
         </View>
 
         {heroPool ? (
-          <View className="rounded-3xl bg-white/10 px-4 py-4">
-            <Text className="text-xs uppercase tracking-wide text-sand-100">今日热门</Text>
+          <View className="rounded-[28px] bg-white/10 px-5 py-5">
+            <Text className="text-xs uppercase tracking-wide text-sand-100">Spotlight</Text>
             <Text className="mt-1 text-2xl font-semibold text-sand-50">{heroPool.name}</Text>
             <Text className="mt-2 text-sm text-sand-100">
-              24h 交易量 {formatCompactCurrency(heroPool.volume['24h'])} · TVL {formatCompactCurrency(heroPool.tvl)} ·
+              24H volume {formatCompactCurrency(heroPool.volume['24h'])} · TVL {formatCompactCurrency(heroPool.tvl)} ·
               APR {formatPercentage(heroPool.apr)}
             </Text>
           </View>
@@ -78,18 +75,18 @@ export default function MarketsScreen() {
         {heroPool ? (
           <PrimaryButton
             iconName="arrow-forward-circle-outline"
-            label="查看详情"
+            label="Open pool"
             onPress={() => router.push({ pathname: '/pool/[address]', params: { address: heroPool.address } })}
             tone="brand"
           />
         ) : null}
       </SectionCard>
 
-      <SectionCard className="gap-4" tone="muted">
-        <Text className="text-base font-semibold text-ink-900">筛选</Text>
+      <SectionCard className="gap-5" tone="muted">
+        <Text className="text-base font-semibold text-ink-900">Filters</Text>
 
-        <View className="rounded-2xl bg-white px-4 py-3">
-          <Text className="text-xs uppercase tracking-wide text-ink-700">搜索</Text>
+        <View className="rounded-[28px] bg-white px-5 py-4">
+          <Text className="text-xs uppercase tracking-wide text-ink-700">Search</Text>
           <TextInput
             className="mt-2 text-base text-ink-900"
             onChangeText={(value) =>
@@ -97,7 +94,7 @@ export default function MarketsScreen() {
                 setSearchText(value)
               })
             }
-            placeholder="搜索池子或代币"
+            placeholder="Search pools or tokens"
             placeholderTextColor="#847d71"
             value={searchText}
           />
@@ -105,17 +102,17 @@ export default function MarketsScreen() {
 
         <PillSelector onChange={setSortKey} options={sortOptions} value={sortKey} />
 
-        <View className="flex-row flex-wrap gap-3">
+        <View className="flex-row flex-wrap gap-4">
           {feeLeader ? (
-            <View className="min-w-[47%] flex-1 rounded-2xl bg-white px-3 py-3">
-              <Text className="text-xs uppercase tracking-wide text-ink-700">费率</Text>
+            <View className="min-w-[47%] flex-1 rounded-3xl bg-white px-4 py-4">
+              <Text className="text-xs uppercase tracking-wide text-ink-700">Top fee ratio</Text>
               <Text className="mt-1 text-base font-semibold text-ink-900">{feeLeader.name}</Text>
               <Text className="mt-1 text-sm text-ink-700">{formatPercentage(feeLeader.fee_tvl_ratio['24h'])}</Text>
             </View>
           ) : null}
           {fastestPool ? (
-            <View className="min-w-[47%] flex-1 rounded-2xl bg-white px-3 py-3">
-              <Text className="text-xs uppercase tracking-wide text-ink-700">APR</Text>
+            <View className="min-w-[47%] flex-1 rounded-3xl bg-white px-4 py-4">
+              <Text className="text-xs uppercase tracking-wide text-ink-700">Top APR</Text>
               <Text className="mt-1 text-base font-semibold text-ink-900">{fastestPool.name}</Text>
               <Text className="mt-1 text-sm text-ink-700">{formatPercentage(fastestPool.apr)}</Text>
             </View>
@@ -123,20 +120,20 @@ export default function MarketsScreen() {
         </View>
 
         <Text className="text-xs text-ink-700">
-          {isFallback ? '离线数据' : '实时数据'}
-          {lastUpdatedAt ? ` 最近刷新 ${formatTimeAgo(lastUpdatedAt)}` : ''}
+          {isFallback ? 'Offline snapshot' : 'Live data'}
+          {lastUpdatedAt ? ` · Updated ${formatTimeAgo(lastUpdatedAt)}` : ''}
         </Text>
       </SectionCard>
 
-      <View className="gap-3">
+      <View className="gap-4">
         {data.map((pool) => (
           <PoolMarketCard key={pool.address} pool={pool} />
         ))}
 
         {!isLoading && data.length === 0 ? (
           <SectionCard className="gap-2">
-            <Text className="text-base font-semibold text-ink-900">没有结果</Text>
-            <Text className="text-sm text-ink-700">试试其他关键词</Text>
+            <Text className="text-base font-semibold text-ink-900">No matches</Text>
+            <Text className="text-sm text-ink-700">Try a broader keyword or switch the sort order.</Text>
           </SectionCard>
         ) : null}
       </View>
