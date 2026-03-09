@@ -16,7 +16,7 @@ export default function Layout() {
   return (
     <MobileWalletProvider cluster={cluster} identity={identity}>
       <MvpStoreProvider>
-        <StatusBar style="dark" />
+        <StatusBar style="dark" backgroundColor="#f6f1e7" />
         <Stack
           screenOptions={{
             contentStyle: {
