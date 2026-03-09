@@ -1,5 +1,12 @@
 import { Buffer } from 'buffer'
-import { ComputeBudgetProgram, Connection, PublicKey, Transaction, type Keypair, type SendOptions } from '@solana/web3.js'
+import {
+  ComputeBudgetProgram,
+  Connection,
+  PublicKey,
+  Transaction,
+  type Keypair,
+  type SendOptions,
+} from '@solana/web3.js'
 
 import type { PriorityLevel } from '@/types/meteora'
 
@@ -84,11 +91,13 @@ function getSignedTransactionPayload(transaction: Transaction) {
 }
 
 function extractErrorMessage(error: unknown) {
-  if (error instanceof Error) {
-    return error.message
+  const message = error instanceof Error ? error.message : String(error)
+
+  if (message.toLowerCase().includes('insufficient funds')) {
+    return 'Insufficient wallet balance for this transaction.'
   }
 
-  return String(error)
+  return message
 }
 
 export async function signAndSendTransactions(options: {

@@ -1,14 +1,16 @@
 import DLMM, { StrategyType } from '@meteora-ag/dlmm'
+import { NATIVE_MINT, getAssociatedTokenAddressSync } from '@solana/spl-token'
 import BN from 'bn.js'
-import { Keypair, PublicKey, type Transaction } from '@solana/web3.js'
+import { Keypair, LAMPORTS_PER_SOL, PublicKey, type Transaction } from '@solana/web3.js'
 
 import { fetchPoolByAddress } from '@/lib/meteora-api'
 import { addPriorityFee, getSolanaConnection } from '@/lib/solana'
-import { decimalToBn, integerToUiAmount } from '@/lib/token-amounts'
+import { decimalToBn, integerToUiAmount, integerToUiAmountString } from '@/lib/token-amounts'
 import type { PriceStrategy, PriorityLevel, SwapQuoteView } from '@/types/meteora'
 
 const DEFAULT_SWAP_SLIPPAGE_BPS = new BN(50)
 const RANGE_INTERVAL = 34
+const SOL_BALANCE_BUFFER_LAMPORTS = new BN(Math.round(0.01 * LAMPORTS_PER_SOL))
 
 const strategyTypeMap: Record<PriceStrategy, StrategyType> = {
   Default: StrategyType.Spot,
@@ -27,6 +29,13 @@ interface PreparedSwapQuote {
   swapAmount: BN
   swapYtoX: boolean
   dlmmPool: DLMM
+}
+
+interface TokenBalanceCheck {
+  amount: BN
+  decimals: number
+  mint: PublicKey
+  symbol: string
 }
 
 export interface PreparedLiquidityTransaction {
@@ -49,6 +58,138 @@ function getDlmmPool(address: string) {
 
 function getSwapYtoX(direction: SwapDirection) {
   return direction === 'xToY'
+}
+
+function getErrorMessage(error: unknown) {
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  return String(error)
+}
+
+function isMissingTokenAccountError(error: unknown) {
+  const message = getErrorMessage(error).toLowerCase()
+  return message.includes('could not find account') || message.includes('failed to get token account balance')
+}
+
+function isInsufficientFundsError(error: unknown) {
+  return getErrorMessage(error).toLowerCase().includes('insufficient funds')
+}
+
+function toDisplayAmount(amount: BN, decimals: number, symbol: string) {
+  return `${integerToUiAmountString(amount, decimals)} ${symbol}`
+}
+
+function getTokenLabel(mint: PublicKey, fallback: string) {
+  return mint.equals(NATIVE_MINT) ? 'SOL' : fallback
+}
+
+async function getAvailableAmount(owner: PublicKey, mint: PublicKey) {
+  const connection = getSolanaConnection()
+
+  if (mint.equals(NATIVE_MINT)) {
+    return new BN(await connection.getBalance(owner, 'confirmed'))
+  }
+
+  const ata = getAssociatedTokenAddressSync(mint, owner, false)
+
+  try {
+    const balance = await connection.getTokenAccountBalance(ata, 'confirmed')
+    return new BN(balance.value.amount)
+  } catch (error) {
+    if (isMissingTokenAccountError(error)) {
+      return new BN(0)
+    }
+
+    throw error
+  }
+}
+
+async function assertSufficientBalance(owner: PublicKey, requirement: TokenBalanceCheck) {
+  if (requirement.amount.isZero()) {
+    return
+  }
+
+  const availableAmount = await getAvailableAmount(owner, requirement.mint)
+
+  if (requirement.mint.equals(NATIVE_MINT)) {
+    const requiredLamports = requirement.amount.add(SOL_BALANCE_BUFFER_LAMPORTS)
+
+    if (availableAmount.lt(requiredLamports)) {
+      throw new Error(
+        `Insufficient ${requirement.symbol} balance. Need ${toDisplayAmount(
+          requirement.amount,
+          requirement.decimals,
+          requirement.symbol,
+        )} plus about ${toDisplayAmount(
+          SOL_BALANCE_BUFFER_LAMPORTS,
+          requirement.decimals,
+          requirement.symbol,
+        )} for rent and fees, but only ${toDisplayAmount(
+          availableAmount,
+          requirement.decimals,
+          requirement.symbol,
+        )} is available.`,
+      )
+    }
+
+    return
+  }
+
+  if (availableAmount.lt(requirement.amount)) {
+    throw new Error(
+      `Insufficient ${requirement.symbol} balance. Need ${toDisplayAmount(
+        requirement.amount,
+        requirement.decimals,
+        requirement.symbol,
+      )}, but the associated token account only has ${toDisplayAmount(
+        availableAmount,
+        requirement.decimals,
+        requirement.symbol,
+      )}.`,
+    )
+  }
+}
+
+async function assertSufficientLiquidityBalances(options: {
+  dlmmPool: DLMM
+  owner: PublicKey
+  tokenXSymbol: string
+  tokenYSymbol: string
+  totalXAmount: BN
+  totalYAmount: BN
+}) {
+  const { dlmmPool, owner, tokenXSymbol, tokenYSymbol, totalXAmount, totalYAmount } = options
+
+  await Promise.all([
+    assertSufficientBalance(owner, {
+      amount: totalXAmount,
+      decimals: dlmmPool.tokenX.mint.decimals,
+      mint: dlmmPool.tokenX.publicKey,
+      symbol: getTokenLabel(dlmmPool.tokenX.publicKey, tokenXSymbol),
+    }),
+    assertSufficientBalance(owner, {
+      amount: totalYAmount,
+      decimals: dlmmPool.tokenY.mint.decimals,
+      mint: dlmmPool.tokenY.publicKey,
+      symbol: getTokenLabel(dlmmPool.tokenY.publicKey, tokenYSymbol),
+    }),
+  ])
+}
+
+function normalizeLiquidityBuildError(error: unknown) {
+  if (isInsufficientFundsError(error)) {
+    return new Error(
+      'Insufficient wallet balance for this liquidity deposit. Reduce one side or top up the missing token.',
+    )
+  }
+
+  if (error instanceof Error) {
+    return error
+  }
+
+  return new Error(String(error))
 }
 
 function toSwapQuoteView(
@@ -154,8 +295,10 @@ export async function buildAddLiquidityTransaction(options: {
   poolAddress: string
   priorityLevel: PriorityLevel
   strategy: PriceStrategy
+  tokenXSymbol: string
+  tokenYSymbol: string
 }): Promise<PreparedLiquidityTransaction> {
-  const { amountX, amountY, owner, poolAddress, priorityLevel, strategy } = options
+  const { amountX, amountY, owner, poolAddress, priorityLevel, strategy, tokenXSymbol, tokenYSymbol } = options
   const ownerKey = new PublicKey(owner)
   const dlmmPool = await getDlmmPool(poolAddress)
   const totalXAmount = decimalToBn(amountX, dlmmPool.tokenX.mint.decimals)
@@ -165,28 +308,41 @@ export async function buildAddLiquidityTransaction(options: {
     throw new Error('Enter a token amount before sending the transaction')
   }
 
-  const activeBin = await dlmmPool.getActiveBin()
-  const { minBinId, maxBinId } = getPositionRange(activeBin.binId, totalXAmount, totalYAmount)
-  const positionKeypair = Keypair.generate()
-
-  const transaction = await dlmmPool.initializePositionAndAddLiquidityByStrategy({
-    positionPubKey: positionKeypair.publicKey,
-    strategy: {
-      maxBinId,
-      minBinId,
-      strategyType: strategyTypeMap[strategy],
-    },
+  await assertSufficientLiquidityBalances({
+    dlmmPool,
+    owner: ownerKey,
+    tokenXSymbol,
+    tokenYSymbol,
     totalXAmount,
     totalYAmount,
-    user: ownerKey,
   })
 
-  await addPriorityFee(transaction, priorityLevel)
+  try {
+    const activeBin = await dlmmPool.getActiveBin()
+    const { minBinId, maxBinId } = getPositionRange(activeBin.binId, totalXAmount, totalYAmount)
+    const positionKeypair = Keypair.generate()
 
-  return {
-    additionalSigners: [positionKeypair],
-    positionAddress: positionKeypair.publicKey.toBase58(),
-    transaction,
+    const transaction = await dlmmPool.initializePositionAndAddLiquidityByStrategy({
+      positionPubKey: positionKeypair.publicKey,
+      strategy: {
+        maxBinId,
+        minBinId,
+        strategyType: strategyTypeMap[strategy],
+      },
+      totalXAmount,
+      totalYAmount,
+      user: ownerKey,
+    })
+
+    await addPriorityFee(transaction, priorityLevel)
+
+    return {
+      additionalSigners: [positionKeypair],
+      positionAddress: positionKeypair.publicKey.toBase58(),
+      transaction,
+    }
+  } catch (error) {
+    throw normalizeLiquidityBuildError(error)
   }
 }
 
