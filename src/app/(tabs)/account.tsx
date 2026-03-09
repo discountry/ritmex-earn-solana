@@ -4,6 +4,8 @@ import { useMobileWallet } from '@wallet-ui/react-native-kit'
 import { router } from 'expo-router'
 
 import { PositionCard } from '@/components/account/position-card'
+import { DataTile } from '@/components/ui/data-tile'
+import { pageContentStyle } from '@/components/ui/page-layout'
 import { PrimaryButton } from '@/components/ui/primary-button'
 import { SectionCard } from '@/components/ui/section-card'
 import { WalletPill } from '@/components/wallet/wallet-pill'
@@ -11,12 +13,6 @@ import { fallbackPools } from '@/data/fallback-pools'
 import { useMvpStore } from '@/providers/mvp-store-provider'
 import { formatCompactCurrency, formatTimeAgo, shortAddress } from '@/lib/formatters'
 import { getAccruedFeesUsd } from '@/lib/position-estimator'
-
-const PAGE_CONTENT_STYLE = {
-  gap: 20,
-  padding: 24,
-  paddingBottom: 132,
-}
 
 export default function AccountScreen() {
   const { account, connect, disconnect } = useMobileWallet()
@@ -48,7 +44,7 @@ export default function AccountScreen() {
 
   return (
     <ScrollView
-      contentContainerStyle={PAGE_CONTENT_STYLE}
+      contentContainerStyle={pageContentStyle}
       contentInsetAdjustmentBehavior="automatic"
       showsVerticalScrollIndicator={false}
     >
@@ -66,13 +62,7 @@ export default function AccountScreen() {
         </View>
 
         {accountAddress ? (
-          <View className="rounded-[28px] bg-white/10 px-5 py-5">
-            <Text className="text-xs uppercase tracking-wide text-sand-100">Wallet</Text>
-            <Text selectable className="mt-1 text-lg font-semibold text-sand-50">
-              {shortAddress(accountAddress)}
-            </Text>
-            <Text className="mt-2 text-sm text-sand-100">Connected</Text>
-          </View>
+          <DataTile detail="Connected" label="Wallet" tone="inverse" value={shortAddress(accountAddress)} />
         ) : (
           <PrimaryButton
             iconName="wallet-outline"
@@ -83,17 +73,19 @@ export default function AccountScreen() {
         )}
       </SectionCard>
 
-      <View className="flex-row flex-wrap gap-4">
-        <SectionCard className="min-w-[47%] flex-1 gap-2">
-          <Text className="text-xs uppercase tracking-wide text-ink-700">Open positions</Text>
-          <Text className="text-2xl font-semibold text-ink-900">{activePositions.length}</Text>
-          <Text className="text-sm text-ink-700">Capital {formatCompactCurrency(totalCapital)}</Text>
-        </SectionCard>
-        <SectionCard className="min-w-[47%] flex-1 gap-2">
-          <Text className="text-xs uppercase tracking-wide text-ink-700">Unclaimed fees</Text>
-          <Text className="text-2xl font-semibold text-ink-900">{formatCompactCurrency(totalUnclaimedFees)}</Text>
-          <Text className="text-sm text-ink-700">Collected {formatCompactCurrency(totalClaimedFees)}</Text>
-        </SectionCard>
+      <View className="flex-row flex-wrap gap-3">
+        <DataTile
+          detail={`Capital ${formatCompactCurrency(totalCapital)}`}
+          label="Open positions"
+          style={{ width: '48%' }}
+          value={String(activePositions.length)}
+        />
+        <DataTile
+          detail={`Collected ${formatCompactCurrency(totalClaimedFees)}`}
+          label="Unclaimed fees"
+          style={{ width: '48%' }}
+          value={formatCompactCurrency(totalUnclaimedFees)}
+        />
       </View>
 
       <SectionCard className="gap-5" tone="muted">
@@ -138,10 +130,12 @@ export default function AccountScreen() {
         {accountAddress && accountActivity.length > 0 ? (
           <View className="gap-4">
             {accountActivity.map((item) => (
-              <View key={item.id} className="rounded-3xl bg-sand-50 px-5 py-4">
+              <View key={item.id} className="gap-2 border border-sand-200 bg-sand-50 px-4 py-4">
                 <Text className="text-sm font-medium text-ink-900">{item.title}</Text>
-                <Text className="mt-1 text-sm text-ink-700">{item.subtitle}</Text>
-                <Text className="mt-2 text-xs text-ink-700">{formatTimeAgo(item.createdAt)}</Text>
+                <Text className="text-sm text-ink-700">{item.subtitle}</Text>
+                <Text className="text-[11px] font-semibold uppercase tracking-wide text-ink-700">
+                  {formatTimeAgo(item.createdAt)}
+                </Text>
               </View>
             ))}
           </View>

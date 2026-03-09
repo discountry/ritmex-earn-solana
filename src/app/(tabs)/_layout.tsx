@@ -12,6 +12,7 @@ export default function TabsLayout() {
         },
         headerTintColor: '#171512',
         headerTitleStyle: {
+          fontSize: 15,
           fontWeight: '700',
         },
         tabBarActiveTintColor: '#171512',
@@ -19,17 +20,18 @@ export default function TabsLayout() {
         tabBarStyle: {
           backgroundColor: '#f0e7d7',
           borderTopColor: '#dbcfb8',
-          height: 76,
-          paddingBottom: 14,
-          paddingTop: 12,
+          borderTopWidth: 1,
+          height: 72,
+          paddingBottom: 10,
+          paddingTop: 10,
         },
         tabBarLabelStyle: {
-          fontSize: 12,
+          fontSize: 11,
           fontWeight: '700',
-          letterSpacing: 0.3,
+          letterSpacing: 0.8,
         },
         tabBarIconStyle: {
-          marginBottom: 2,
+          marginBottom: 1,
         },
       }}
     >

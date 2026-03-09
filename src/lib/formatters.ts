@@ -1,20 +1,8 @@
 import type { DraftPosition, LiquidityMode, PriceStrategy, PriorityLevel } from '@/types/meteora'
 
-const compactFormatter = new Intl.NumberFormat('en-US', {
-  notation: 'compact',
-  maximumFractionDigits: 2,
-})
-
 const currencyFormatter = new Intl.NumberFormat('en-US', {
   style: 'currency',
   currency: 'USD',
-  maximumFractionDigits: 2,
-})
-
-const compactCurrencyFormatter = new Intl.NumberFormat('en-US', {
-  style: 'currency',
-  currency: 'USD',
-  notation: 'compact',
   maximumFractionDigits: 2,
 })
 
@@ -32,7 +20,21 @@ const percentFormatter = new Intl.NumberFormat('en-US', {
 })
 
 export function formatCompactNumber(value: number) {
-  return compactFormatter.format(value)
+  const absoluteValue = Math.abs(value)
+
+  if (absoluteValue >= 1_000_000_000) {
+    return `${formatNumber(value / 1_000_000_000)}B`
+  }
+
+  if (absoluteValue >= 1_000_000) {
+    return `${formatNumber(value / 1_000_000)}M`
+  }
+
+  if (absoluteValue >= 1_000) {
+    return `${formatNumber(value / 1_000)}K`
+  }
+
+  return formatNumber(value)
 }
 
 export function formatCurrency(value: number) {
@@ -40,7 +42,22 @@ export function formatCurrency(value: number) {
 }
 
 export function formatCompactCurrency(value: number) {
-  return compactCurrencyFormatter.format(value)
+  const absoluteValue = Math.abs(value)
+  const prefix = value < 0 ? '-$' : '$'
+
+  if (absoluteValue >= 1_000_000_000) {
+    return `${prefix}${formatNumber(absoluteValue / 1_000_000_000)}B`
+  }
+
+  if (absoluteValue >= 1_000_000) {
+    return `${prefix}${formatNumber(absoluteValue / 1_000_000)}M`
+  }
+
+  if (absoluteValue >= 1_000) {
+    return `${prefix}${formatNumber(absoluteValue / 1_000)}K`
+  }
+
+  return formatCurrency(value)
 }
 
 export function formatNumber(value: number) {

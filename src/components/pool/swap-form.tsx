@@ -1,6 +1,8 @@
 import * as React from 'react'
-import { Alert, Switch, Text, TextInput, View } from 'react-native'
+import { Alert, Text, TextInput, View } from 'react-native'
 
+import { DataTile } from '@/components/ui/data-tile'
+import { InputShell } from '@/components/ui/input-shell'
 import { PillSelector } from '@/components/ui/pill-selector'
 import { PrimaryButton } from '@/components/ui/primary-button'
 import { SectionCard } from '@/components/ui/section-card'
@@ -86,72 +88,82 @@ export function SwapForm({ accountAddress, onCreateSwap, onRequireConnect, pool 
           <Text className="text-sm leading-6 text-ink-700">Choose a direction, set size, and review the route.</Text>
         </View>
 
-        <PillSelector
-          onChange={setDirection}
-          options={[
-            { label: `${pool.token_x.symbol} -> ${pool.token_y.symbol}`, value: 'xToY' },
-            { label: `${pool.token_y.symbol} -> ${pool.token_x.symbol}`, value: 'yToX' },
-          ]}
-          value={direction}
-        />
+        <View className="gap-3">
+          <Text className="text-[11px] font-semibold uppercase tracking-wide text-ink-700">Direction</Text>
+          <PillSelector
+            columns={1}
+            onChange={setDirection}
+            options={[
+              { label: `${pool.token_x.symbol} -> ${pool.token_y.symbol}`, value: 'xToY' },
+              { label: `${pool.token_y.symbol} -> ${pool.token_x.symbol}`, value: 'yToX' },
+            ]}
+            value={direction}
+          />
+        </View>
 
-        <View className="rounded-3xl bg-sand-50 px-5 py-4">
-          <Text className="text-sm font-medium text-ink-900">Amount in</Text>
+        <InputShell detail={`≈ ${formatCompactCurrency(preview.inputUsd)}`} label="Amount in">
           <TextInput
-            className="mt-2 text-2xl font-semibold text-ink-900"
+            className="p-0 text-[28px] font-semibold text-ink-900"
             keyboardType="decimal-pad"
             onChangeText={(value) => setAmountIn(sanitizeDecimal(value))}
             placeholder={`Enter ${inputSymbol}`}
             placeholderTextColor="#847d71"
             value={amountIn}
           />
-          <Text className="mt-1 text-xs text-ink-700">≈ {formatCompactCurrency(preview.inputUsd)}</Text>
+        </InputShell>
+
+        <View className="gap-3">
+          <Text className="text-[11px] font-semibold uppercase tracking-wide text-ink-700">Priority</Text>
+          <PillSelector columns={3} onChange={setPriorityLevel} options={priorityOptions} value={priorityLevel} />
         </View>
 
-        <PillSelector onChange={setPriorityLevel} options={priorityOptions} value={priorityLevel} />
-
-        <View className="flex-row items-center justify-between rounded-3xl bg-sand-50 px-5 py-4">
-          <View className="flex-1 pr-3">
-            <Text className="text-sm font-medium text-ink-900">Jito</Text>
-            <Text className="text-xs text-ink-700">MEV protection</Text>
-          </View>
-          <Switch onValueChange={setUseJito} value={useJito} />
-        </View>
+        <InputShell detail="MEV protection" label="Jito">
+          <PillSelector
+            columns={2}
+            onChange={(nextValue) => setUseJito(nextValue === 'on')}
+            options={[
+              { label: 'On', value: 'on' },
+              { label: 'Off', value: 'off' },
+            ]}
+            value={useJito ? 'on' : 'off'}
+          />
+        </InputShell>
       </SectionCard>
 
       <SectionCard className="gap-5" tone="muted">
         <Text className="text-base font-semibold text-ink-900">Preview</Text>
-        <View className="rounded-3xl bg-white px-5 py-4">
-          <Text className="text-xs uppercase tracking-wide text-ink-700">Estimated out</Text>
-          <Text className="mt-1 text-xl font-semibold text-ink-900">
+        <InputShell label="Estimated out" tone="raised">
+          <Text selectable className="text-xl font-semibold text-ink-900">
             {formatTokenAmount(preview.amountOut)} {outputSymbol}
           </Text>
-          <Text className="mt-1 text-sm text-ink-700">{preview.executionLane}</Text>
-        </View>
+          <Text className="text-sm text-ink-700">{preview.executionLane}</Text>
+        </InputShell>
 
-        <View className="flex-row flex-wrap gap-4">
-          <View className="min-w-[47%] flex-1 rounded-3xl bg-white px-4 py-4">
-            <Text className="text-xs uppercase tracking-wide text-ink-700">Trading fee</Text>
-            <Text className="mt-1 text-base font-semibold text-ink-900">{formatCompactCurrency(preview.feeUsd)}</Text>
-          </View>
-          <View className="min-w-[47%] flex-1 rounded-3xl bg-white px-4 py-4">
-            <Text className="text-xs uppercase tracking-wide text-ink-700">Price impact</Text>
-            <Text className="mt-1 text-base font-semibold text-ink-900">
-              {formatPercentage(preview.priceImpactPct)}
-            </Text>
-          </View>
-          <View className="min-w-[47%] flex-1 rounded-3xl bg-white px-4 py-4">
-            <Text className="text-xs uppercase tracking-wide text-ink-700">Priority fee</Text>
-            <Text className="mt-1 text-base font-semibold text-ink-900">
-              {formatTokenAmount(preview.priorityFeeSol)} SOL
-            </Text>
-          </View>
-          <View className="min-w-[47%] flex-1 rounded-3xl bg-white px-4 py-4">
-            <Text className="text-xs uppercase tracking-wide text-ink-700">Base fee</Text>
-            <Text className="mt-1 text-base font-semibold text-ink-900">
-              {formatPercentage(pool.pool_config.base_fee_pct / 100)}
-            </Text>
-          </View>
+        <View className="flex-row flex-wrap gap-3">
+          <DataTile
+            label="Trading fee"
+            style={{ width: '48%' }}
+            tone="raised"
+            value={formatCompactCurrency(preview.feeUsd)}
+          />
+          <DataTile
+            label="Price impact"
+            style={{ width: '48%' }}
+            tone="raised"
+            value={formatPercentage(preview.priceImpactPct)}
+          />
+          <DataTile
+            label="Priority fee"
+            style={{ width: '48%' }}
+            tone="raised"
+            value={`${formatTokenAmount(preview.priorityFeeSol)} SOL`}
+          />
+          <DataTile
+            label="Base fee"
+            style={{ width: '48%' }}
+            tone="raised"
+            value={formatPercentage(pool.pool_config.base_fee_pct / 100)}
+          />
         </View>
 
         <PrimaryButton

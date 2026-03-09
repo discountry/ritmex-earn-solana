@@ -28,6 +28,7 @@ export default function Layout() {
             },
             headerTintColor: '#171512',
             headerTitleStyle: {
+              fontSize: 15,
               fontWeight: '700',
             },
           }}

@@ -42,21 +42,16 @@ export function PrimaryButton({
 
   return (
     <Pressable
-      className={cn(
-        'min-h-16 rounded-[26px] border px-5 py-4',
-        buttonClasses[tone],
-        isDisabled && 'opacity-50',
-        className,
-      )}
+      className={cn('min-h-[56px] border px-4 py-3', buttonClasses[tone], isDisabled && 'opacity-50', className)}
       disabled={isDisabled}
       onPress={onPress}
     >
-      <View className="flex-row items-center justify-center gap-2">
+      <View className="flex-row items-center justify-center gap-3">
         {busy ? <ActivityIndicator color={tone === 'ghost' ? '#171512' : '#f6f1e7'} /> : null}
         {!busy && iconName ? <AppIcon color={tone === 'ghost' ? '#171512' : '#f6f1e7'} name={iconName} /> : null}
         <View className="items-center gap-0.5">
-          <Text className={cn('text-base font-semibold', textClasses[tone])}>{label}</Text>
-          {subtitle ? <Text className={cn('text-xs', textClasses[tone])}>{subtitle}</Text> : null}
+          <Text className={cn('text-sm font-semibold uppercase tracking-wide', textClasses[tone])}>{label}</Text>
+          {subtitle ? <Text className={cn('text-[11px]', textClasses[tone])}>{subtitle}</Text> : null}
         </View>
       </View>
     </Pressable>

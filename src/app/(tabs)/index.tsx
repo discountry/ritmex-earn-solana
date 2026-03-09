@@ -3,18 +3,16 @@ import { router } from 'expo-router'
 import { RefreshControl, ScrollView, Text, TextInput, View } from 'react-native'
 
 import { PoolMarketCard } from '@/components/market/pool-market-card'
+import { Badge } from '@/components/ui/badge'
+import { DataTile } from '@/components/ui/data-tile'
+import { InputShell } from '@/components/ui/input-shell'
+import { pageContentStyle } from '@/components/ui/page-layout'
 import { PillSelector } from '@/components/ui/pill-selector'
 import { PrimaryButton } from '@/components/ui/primary-button'
 import { SectionCard } from '@/components/ui/section-card'
 import { useMarketPools } from '@/hooks/use-market-pools'
 import { formatCompactCurrency, formatPercentage, formatTimeAgo } from '@/lib/formatters'
 import type { MarketSortKey } from '@/types/meteora'
-
-const PAGE_CONTENT_STYLE = {
-  gap: 20,
-  padding: 24,
-  paddingBottom: 132,
-}
 
 const sortOptions: { hint: string; label: string; value: MarketSortKey }[] = [
   { hint: '24H flow', label: 'Volume', value: 'volume' },
@@ -41,40 +39,34 @@ export default function MarketsScreen() {
 
   return (
     <ScrollView
-      contentContainerStyle={PAGE_CONTENT_STYLE}
+      contentContainerStyle={pageContentStyle}
       contentInsetAdjustmentBehavior="automatic"
       refreshControl={<RefreshControl onRefresh={refresh} refreshing={isLoading} tintColor="#23685b" />}
       showsVerticalScrollIndicator={false}
     >
       <SectionCard className="gap-6" tone="inverse">
-        <View className="flex-row flex-wrap items-center gap-2">
-          <View className="rounded-full bg-mint-600 px-3 py-1">
-            <Text className="text-[11px] font-semibold uppercase tracking-wide text-white">DLMM</Text>
-          </View>
-          <View className="rounded-full bg-white/10 px-3 py-1">
-            <Text className="text-[11px] font-semibold uppercase tracking-wide text-sand-100">Mainnet</Text>
-          </View>
+        <View className="flex-row flex-wrap gap-2">
+          <Badge label="DLMM" tone="success" />
+          <Badge label="Mainnet" tone="inverse" />
         </View>
 
         <View className="gap-3">
-          <Text className="text-3xl font-semibold text-sand-50">DLMM markets</Text>
+          <Text className="text-4xl font-semibold text-sand-50">DLMM markets</Text>
           <Text className="text-sm leading-6 text-sand-100">Scan volume, TVL, and APR without visual noise.</Text>
         </View>
 
         {heroPool ? (
-          <View className="rounded-[28px] bg-white/10 px-5 py-5">
-            <Text className="text-xs uppercase tracking-wide text-sand-100">Spotlight</Text>
-            <Text className="mt-1 text-2xl font-semibold text-sand-50">{heroPool.name}</Text>
-            <Text className="mt-2 text-sm text-sand-100">
-              24H volume {formatCompactCurrency(heroPool.volume['24h'])} · TVL {formatCompactCurrency(heroPool.tvl)} ·
-              APR {formatPercentage(heroPool.apr)}
-            </Text>
-          </View>
+          <DataTile
+            detail={`24H volume ${formatCompactCurrency(heroPool.volume['24h'])} · TVL ${formatCompactCurrency(heroPool.tvl)} · APR ${formatPercentage(heroPool.apr)}`}
+            label="Spotlight"
+            tone="inverse"
+            value={heroPool.name}
+          />
         ) : null}
 
         {heroPool ? (
           <PrimaryButton
-            iconName="arrow-forward-circle-outline"
+            iconName="arrow-forward-outline"
             label="Open pool"
             onPress={() => router.push({ pathname: '/pool/[address]', params: { address: heroPool.address } })}
             tone="brand"
@@ -83,12 +75,11 @@ export default function MarketsScreen() {
       </SectionCard>
 
       <SectionCard className="gap-5" tone="muted">
-        <Text className="text-base font-semibold text-ink-900">Filters</Text>
+        <Text className="text-base font-semibold text-ink-900">Market filters</Text>
 
-        <View className="rounded-[28px] bg-white px-5 py-4">
-          <Text className="text-xs uppercase tracking-wide text-ink-700">Search</Text>
+        <InputShell label="Search" tone="raised">
           <TextInput
-            className="mt-2 text-base text-ink-900"
+            className="p-0 text-lg font-semibold text-ink-900"
             onChangeText={(value) =>
               React.startTransition(() => {
                 setSearchText(value)
@@ -98,28 +89,35 @@ export default function MarketsScreen() {
             placeholderTextColor="#847d71"
             value={searchText}
           />
+        </InputShell>
+
+        <View className="gap-3">
+          <Text className="text-[11px] font-semibold uppercase tracking-wide text-ink-700">Sort by</Text>
+          <PillSelector columns={2} onChange={setSortKey} options={sortOptions} value={sortKey} />
         </View>
 
-        <PillSelector onChange={setSortKey} options={sortOptions} value={sortKey} />
-
-        <View className="flex-row flex-wrap gap-4">
+        <View className="flex-row flex-wrap gap-3">
           {feeLeader ? (
-            <View className="min-w-[47%] flex-1 rounded-3xl bg-white px-4 py-4">
-              <Text className="text-xs uppercase tracking-wide text-ink-700">Top fee ratio</Text>
-              <Text className="mt-1 text-base font-semibold text-ink-900">{feeLeader.name}</Text>
-              <Text className="mt-1 text-sm text-ink-700">{formatPercentage(feeLeader.fee_tvl_ratio['24h'])}</Text>
-            </View>
+            <DataTile
+              detail={feeLeader.name}
+              label="Top fee ratio"
+              style={{ width: '48%' }}
+              tone="raised"
+              value={formatPercentage(feeLeader.fee_tvl_ratio['24h'])}
+            />
           ) : null}
           {fastestPool ? (
-            <View className="min-w-[47%] flex-1 rounded-3xl bg-white px-4 py-4">
-              <Text className="text-xs uppercase tracking-wide text-ink-700">Top APR</Text>
-              <Text className="mt-1 text-base font-semibold text-ink-900">{fastestPool.name}</Text>
-              <Text className="mt-1 text-sm text-ink-700">{formatPercentage(fastestPool.apr)}</Text>
-            </View>
+            <DataTile
+              detail={fastestPool.name}
+              label="Top APR"
+              style={{ width: '48%' }}
+              tone="raised"
+              value={formatPercentage(fastestPool.apr)}
+            />
           ) : null}
         </View>
 
-        <Text className="text-xs text-ink-700">
+        <Text className="text-[11px] font-semibold uppercase tracking-wide text-ink-700">
           {isFallback ? 'Offline snapshot' : 'Live data'}
           {lastUpdatedAt ? ` · Updated ${formatTimeAgo(lastUpdatedAt)}` : ''}
         </Text>

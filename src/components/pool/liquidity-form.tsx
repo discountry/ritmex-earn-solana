@@ -1,6 +1,8 @@
 import * as React from 'react'
-import { Alert, Switch, Text, TextInput, View } from 'react-native'
+import { Alert, Text, TextInput, View } from 'react-native'
 
+import { DataTile } from '@/components/ui/data-tile'
+import { InputShell } from '@/components/ui/input-shell'
 import { PillSelector } from '@/components/ui/pill-selector'
 import { PrimaryButton } from '@/components/ui/primary-button'
 import { SectionCard } from '@/components/ui/section-card'
@@ -172,38 +174,52 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
           <Text className="text-sm leading-6 text-ink-700">Set amount, range style, and execution mode.</Text>
         </View>
 
-        <PillSelector onChange={setMode} options={liquidityModeOptions} value={mode} />
-        <PillSelector onChange={setStrategy} options={priceStrategyOptions} value={strategy} />
-
-        {mode === 'One-Sided' ? (
-          <PillSelector
-            onChange={setSingleAsset}
-            options={[
-              { label: `Only ${pool.token_x.symbol}`, value: 'x' },
-              { label: `Only ${pool.token_y.symbol}`, value: 'y' },
-            ]}
-            value={singleAsset}
-          />
-        ) : null}
-
-        <View className="flex-row items-center justify-between rounded-3xl bg-sand-50 px-5 py-4">
-          <View className="flex-1 pr-3">
-            <Text className="text-sm font-medium text-ink-900">Auto-balance</Text>
-            <Text className="text-xs text-ink-700">Match the current price.</Text>
-          </View>
-          <Switch onValueChange={setAutoBalance} value={autoBalance && mode === 'Balanced'} />
+        <View className="gap-3">
+          <Text className="text-[11px] font-semibold uppercase tracking-wide text-ink-700">Mode</Text>
+          <PillSelector columns={3} onChange={setMode} options={liquidityModeOptions} value={mode} />
         </View>
 
+        <View className="gap-3">
+          <Text className="text-[11px] font-semibold uppercase tracking-wide text-ink-700">Range style</Text>
+          <PillSelector columns={3} onChange={setStrategy} options={priceStrategyOptions} value={strategy} />
+        </View>
+
+        {mode === 'One-Sided' ? (
+          <View className="gap-3">
+            <Text className="text-[11px] font-semibold uppercase tracking-wide text-ink-700">Single asset</Text>
+            <PillSelector
+              columns={2}
+              onChange={setSingleAsset}
+              options={[
+                { label: `Only ${pool.token_x.symbol}`, value: 'x' },
+                { label: `Only ${pool.token_y.symbol}`, value: 'y' },
+              ]}
+              value={singleAsset}
+            />
+          </View>
+        ) : null}
+
+        {mode === 'Balanced' ? (
+          <InputShell detail="Match the current price." label="Auto-balance">
+            <PillSelector
+              columns={2}
+              onChange={(nextValue) => setAutoBalance(nextValue === 'on')}
+              options={[
+                { label: 'On', value: 'on' },
+                { label: 'Off', value: 'off' },
+              ]}
+              value={autoBalance ? 'on' : 'off'}
+            />
+          </InputShell>
+        ) : null}
+
         <View className="gap-4">
-          <View className="rounded-3xl bg-sand-50 px-5 py-4">
-            <View className="flex-row items-center justify-between">
-              <Text className="text-sm font-medium text-ink-900">{pool.token_x.symbol} amount</Text>
-              <Text className="text-xs text-ink-700">
-                ≈ {formatCompactCurrency(parsedAmountX * pool.token_x.price)}
-              </Text>
-            </View>
+          <InputShell
+            detail={`≈ ${formatCompactCurrency(parsedAmountX * pool.token_x.price)}`}
+            label={`${pool.token_x.symbol} amount`}
+          >
             <TextInput
-              className="mt-2 text-2xl font-semibold text-ink-900"
+              className="p-0 text-[28px] font-semibold text-ink-900"
               editable={mode !== 'One-Sided' || singleAsset === 'x'}
               keyboardType="decimal-pad"
               onChangeText={(value) => {
@@ -214,17 +230,14 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
               placeholderTextColor="#847d71"
               value={amountX}
             />
-          </View>
+          </InputShell>
 
-          <View className="rounded-3xl bg-sand-50 px-5 py-4">
-            <View className="flex-row items-center justify-between">
-              <Text className="text-sm font-medium text-ink-900">{pool.token_y.symbol} amount</Text>
-              <Text className="text-xs text-ink-700">
-                ≈ {formatCompactCurrency(parsedAmountY * pool.token_y.price)}
-              </Text>
-            </View>
+          <InputShell
+            detail={`≈ ${formatCompactCurrency(parsedAmountY * pool.token_y.price)}`}
+            label={`${pool.token_y.symbol} amount`}
+          >
             <TextInput
-              className="mt-2 text-2xl font-semibold text-ink-900"
+              className="p-0 text-[28px] font-semibold text-ink-900"
               editable={mode !== 'One-Sided' || singleAsset === 'y'}
               keyboardType="decimal-pad"
               onChangeText={(value) => {
@@ -235,68 +248,77 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
               placeholderTextColor="#847d71"
               value={amountY}
             />
-          </View>
+          </InputShell>
         </View>
 
-        <View className="rounded-3xl bg-sand-50 px-5 py-4">
-          <Text className="text-sm font-medium text-ink-900">Note</Text>
+        <InputShell label="Note">
           <TextInput
-            className="mt-2 text-base text-ink-900"
+            className="min-h-[72px] p-0 text-base leading-6 text-ink-900"
             multiline
             onChangeText={setNote}
             placeholder="Optional"
             placeholderTextColor="#847d71"
+            textAlignVertical="top"
             value={note}
           />
+        </InputShell>
+
+        <View className="gap-3">
+          <Text className="text-[11px] font-semibold uppercase tracking-wide text-ink-700">Priority</Text>
+          <PillSelector columns={3} onChange={setPriorityLevel} options={priorityOptions} value={priorityLevel} />
         </View>
 
-        <PillSelector onChange={setPriorityLevel} options={priorityOptions} value={priorityLevel} />
-
-        <View className="flex-row items-center justify-between rounded-3xl bg-sand-50 px-5 py-4">
-          <View className="flex-1 pr-3">
-            <Text className="text-sm font-medium text-ink-900">Jito</Text>
-            <Text className="text-xs text-ink-700">MEV protection</Text>
-          </View>
-          <Switch onValueChange={setUseJito} value={useJito} />
-        </View>
+        <InputShell detail="MEV protection" label="Jito">
+          <PillSelector
+            columns={2}
+            onChange={(nextValue) => setUseJito(nextValue === 'on')}
+            options={[
+              { label: 'On', value: 'on' },
+              { label: 'Off', value: 'off' },
+            ]}
+            value={useJito ? 'on' : 'off'}
+          />
+        </InputShell>
       </SectionCard>
 
       <SectionCard className="gap-5" tone="muted">
         <Text className="text-base font-semibold text-ink-900">Preview</Text>
-        <View className="flex-row flex-wrap gap-4">
-          <View className="min-w-[47%] flex-1 rounded-3xl bg-white px-4 py-4">
-            <Text className="text-xs uppercase tracking-wide text-ink-700">Deposit</Text>
-            <Text className="mt-1 text-base font-semibold text-ink-900">
-              {formatCompactCurrency(preview.depositUsd)}
-            </Text>
-          </View>
-          <View className="min-w-[47%] flex-1 rounded-3xl bg-white px-4 py-4">
-            <Text className="text-xs uppercase tracking-wide text-ink-700">Pool share</Text>
-            <Text className="mt-1 text-base font-semibold text-ink-900">{formatPercentage(preview.shareOfPool)}</Text>
-          </View>
-          <View className="min-w-[47%] flex-1 rounded-3xl bg-white px-4 py-4">
-            <Text className="text-xs uppercase tracking-wide text-ink-700">Daily fees</Text>
-            <Text className="mt-1 text-base font-semibold text-ink-900">
-              {formatCompactCurrency(preview.dailyFeesUsd)}
-            </Text>
-          </View>
-          <View className="min-w-[47%] flex-1 rounded-3xl bg-white px-4 py-4">
-            <Text className="text-xs uppercase tracking-wide text-ink-700">Priority fee</Text>
-            <Text className="mt-1 text-base font-semibold text-ink-900">
-              {formatTokenAmount(preview.priorityFeeSol)} SOL
-            </Text>
-          </View>
+        <View className="flex-row flex-wrap gap-3">
+          <DataTile
+            label="Deposit"
+            style={{ width: '48%' }}
+            tone="raised"
+            value={formatCompactCurrency(preview.depositUsd)}
+          />
+          <DataTile
+            label="Pool share"
+            style={{ width: '48%' }}
+            tone="raised"
+            value={formatPercentage(preview.shareOfPool)}
+          />
+          <DataTile
+            label="Daily fees"
+            style={{ width: '48%' }}
+            tone="raised"
+            value={formatCompactCurrency(preview.dailyFeesUsd)}
+          />
+          <DataTile
+            label="Priority fee"
+            style={{ width: '48%' }}
+            tone="raised"
+            value={`${formatTokenAmount(preview.priorityFeeSol)} SOL`}
+          />
         </View>
 
-        <View className="rounded-3xl bg-white px-5 py-4">
-          <Text className="text-sm font-medium text-ink-900">{preview.executionQuality}</Text>
-          <Text className="mt-1 text-sm text-ink-700">
+        <InputShell label="Execution" tone="raised">
+          <Text className="text-sm font-semibold text-ink-900">{preview.executionQuality}</Text>
+          <Text className="text-sm text-ink-700">
             {preview.rangeCoverage} · APR {formatPercentage(pool.apr)}
           </Text>
-        </View>
+        </InputShell>
 
         <PrimaryButton
-          iconName={accountAddress ? 'add-circle-outline' : 'wallet-outline'}
+          iconName={accountAddress ? 'add-outline' : 'wallet-outline'}
           label={accountAddress ? 'Add liquidity' : 'Connect wallet'}
           onPress={() => {
             void handleSubmit()
