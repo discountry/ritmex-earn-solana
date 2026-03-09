@@ -1,7 +1,6 @@
 import { Stack, useLocalSearchParams } from 'expo-router'
 import * as React from 'react'
 import { Alert, RefreshControl, ScrollView, Text, View } from 'react-native'
-import { useMobileWallet } from '@wallet-ui/react-native-kit'
 
 import { LiquidityForm } from '@/components/pool/liquidity-form'
 import { SwapForm } from '@/components/pool/swap-form'
@@ -10,21 +9,25 @@ import { DataTile } from '@/components/ui/data-tile'
 import { pageContentStyle } from '@/components/ui/page-layout'
 import { PillSelector } from '@/components/ui/pill-selector'
 import { SectionCard } from '@/components/ui/section-card'
+import { useAuthorizedMobileWallet } from '@/hooks/use-authorized-mobile-wallet'
+import { buildAddLiquidityTransaction, buildSwapTransaction } from '@/lib/meteora-dlmm'
 import { usePoolDetails } from '@/hooks/use-pool-details'
 import { formatCompactCurrency, formatPercentage, formatTimeAgo, shortAddress } from '@/lib/formatters'
+import { signAndSendTransactions } from '@/lib/solana'
 import { useMvpStore } from '@/providers/mvp-store-provider'
+import { PublicKey } from '@solana/web3.js'
 
 export default function PoolDetailsScreen() {
   const params = useLocalSearchParams<{ address?: string }>()
   const address = typeof params.address === 'string' ? params.address : undefined
-  const { account, connect } = useMobileWallet()
+  const wallet = useAuthorizedMobileWallet()
   const { addPosition, recordSwap } = useMvpStore()
   const { isFallback, isLoading, pool, refresh } = usePoolDetails(address)
   const [activeTab, setActiveTab] = React.useState<'liquidity' | 'swap'>('liquidity')
 
   async function ensureWalletConnected() {
     try {
-      await connect()
+      await wallet.connect()
     } catch {
       Alert.alert('Unable to connect wallet')
     }
@@ -47,7 +50,7 @@ export default function PoolDetailsScreen() {
     )
   }
 
-  const accountAddress = account?.address.toString()
+  const accountAddress = wallet.account?.address.toString()
 
   return (
     <ScrollView
@@ -111,18 +114,45 @@ export default function PoolDetailsScreen() {
       {activeTab === 'liquidity' ? (
         <LiquidityForm
           accountAddress={accountAddress}
-          onCreatePosition={(input) => {
-            addPosition({
-              mode: input.mode,
-              note: input.note,
-              ownerAddress: accountAddress ?? 'guest',
-              pool,
-              depositedX: input.depositedX,
-              depositedY: input.depositedY,
+          onCreatePosition={async (input) => {
+            if (!accountAddress) {
+              throw new Error('Connect wallet first')
+            }
+
+            const prepared = await buildAddLiquidityTransaction({
+              amountX: input.amountX,
+              amountY: input.amountY,
+              owner: accountAddress,
+              poolAddress: pool.address,
               priorityLevel: input.priorityLevel,
               strategy: input.strategy,
-              useJito: input.useJito,
             })
+
+            const [signature] = await signAndSendTransactions({
+              additionalSigners: [prepared.additionalSigners],
+              owner: new PublicKey(accountAddress),
+              transactions: [prepared.transaction],
+              walletTransactor: wallet.transactWithWallet,
+            })
+
+            addPosition({
+              depositedX: Number(input.amountX) || 0,
+              depositedY: Number(input.amountY) || 0,
+              mode: input.mode,
+              note: '',
+              ownerAddress: accountAddress ?? 'guest',
+              pool,
+              priorityLevel: input.priorityLevel,
+              strategy: input.strategy,
+              useJito: false,
+            })
+
+            void refresh()
+
+            return {
+              positionAddress: prepared.positionAddress,
+              signature,
+            }
           }}
           onRequireConnect={ensureWalletConnected}
           pool={pool}
@@ -130,16 +160,41 @@ export default function PoolDetailsScreen() {
       ) : (
         <SwapForm
           accountAddress={accountAddress}
-          onCreateSwap={(input) => {
-            recordSwap({
+          onCreateSwap={async (input) => {
+            if (!accountAddress) {
+              throw new Error('Connect wallet first')
+            }
+
+            const { quote, transaction } = await buildSwapTransaction({
               amountIn: input.amountIn,
-              amountOut: input.amountOut,
+              direction: input.direction,
+              owner: accountAddress,
+              poolAddress: pool.address,
+              priorityLevel: input.priorityLevel,
+            })
+
+            const [signature] = await signAndSendTransactions({
+              owner: new PublicKey(accountAddress),
+              transactions: [transaction],
+              walletTransactor: wallet.transactWithWallet,
+            })
+
+            recordSwap({
+              amountIn: Number(input.amountIn) || 0,
+              amountOut: quote.amountOut,
               direction: input.direction,
               ownerAddress: accountAddress ?? 'guest',
               pool,
               priorityLevel: input.priorityLevel,
-              useJito: input.useJito,
+              useJito: false,
             })
+
+            void refresh()
+
+            return {
+              quote,
+              signature,
+            }
           }}
           onRequireConnect={ensureWalletConnected}
           pool={pool}

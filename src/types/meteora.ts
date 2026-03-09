@@ -122,3 +122,10 @@ export interface RecordSwapInput {
   useJito: boolean
   priorityLevel: PriorityLevel
 }
+
+export interface SwapQuoteView {
+  amountOut: number
+  feeAmount: number
+  minAmountOut: number
+  priceImpactPct: number
+}

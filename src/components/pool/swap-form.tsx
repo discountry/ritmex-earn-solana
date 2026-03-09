@@ -6,9 +6,10 @@ import { InputShell } from '@/components/ui/input-shell'
 import { PillSelector } from '@/components/ui/pill-selector'
 import { PrimaryButton } from '@/components/ui/primary-button'
 import { SectionCard } from '@/components/ui/section-card'
-import { formatCompactCurrency, formatPercentage, formatTokenAmount } from '@/lib/formatters'
+import { formatCompactCurrency, formatPercentage, formatTokenAmount, shortAddress } from '@/lib/formatters'
+import { fetchSwapQuote } from '@/lib/meteora-dlmm'
 import { estimateSwapPreview } from '@/lib/position-estimator'
-import type { MeteoraPool, PriorityLevel } from '@/types/meteora'
+import type { MeteoraPool, PriorityLevel, SwapQuoteView } from '@/types/meteora'
 
 const priorityOptions: { hint: string; label: string; value: PriorityLevel }[] = [
   { hint: 'Saver', label: 'Low', value: 'Low' },
@@ -32,12 +33,10 @@ function sanitizeDecimal(value: string) {
 interface SwapFormProps {
   accountAddress?: string
   onCreateSwap: (input: {
-    amountIn: number
-    amountOut: number
+    amountIn: string
     direction: 'xToY' | 'yToX'
     priorityLevel: PriorityLevel
-    useJito: boolean
-  }) => void
+  }) => Promise<{ quote: SwapQuoteView; signature: string }>
   onRequireConnect: () => Promise<void>
   pool: MeteoraPool
 }
@@ -46,12 +45,64 @@ export function SwapForm({ accountAddress, onCreateSwap, onRequireConnect, pool 
   const [amountIn, setAmountIn] = React.useState('')
   const [direction, setDirection] = React.useState<'xToY' | 'yToX'>('xToY')
   const [priorityLevel, setPriorityLevel] = React.useState<PriorityLevel>('Medium')
-  const [useJito, setUseJito] = React.useState(true)
+  const [isSubmitting, setIsSubmitting] = React.useState(false)
+  const [liveQuote, setLiveQuote] = React.useState<SwapQuoteView | null>(null)
+  const [quoteError, setQuoteError] = React.useState<string | null>(null)
+  const [quoteLoading, setQuoteLoading] = React.useState(false)
 
   const parsedAmountIn = Number(amountIn) || 0
-  const preview = estimateSwapPreview(pool, direction, parsedAmountIn, priorityLevel, useJito)
+  const preview = estimateSwapPreview(pool, direction, parsedAmountIn, priorityLevel, false)
   const inputSymbol = direction === 'xToY' ? pool.token_x.symbol : pool.token_y.symbol
   const outputSymbol = direction === 'xToY' ? pool.token_y.symbol : pool.token_x.symbol
+  const inputTokenPrice = direction === 'xToY' ? pool.token_x.price : pool.token_y.price
+  const displayedQuote = liveQuote ?? {
+    amountOut: preview.amountOut,
+    feeAmount: preview.feeUsd / Math.max(inputTokenPrice, 0.000001),
+    minAmountOut: preview.amountOut,
+    priceImpactPct: preview.priceImpactPct * 100,
+  }
+
+  React.useEffect(() => {
+    if (parsedAmountIn <= 0) {
+      setLiveQuote(null)
+      setQuoteError(null)
+      setQuoteLoading(false)
+      return
+    }
+
+    let active = true
+    setQuoteLoading(true)
+    setQuoteError(null)
+
+    const timeoutId = setTimeout(() => {
+      void fetchSwapQuote({
+        amountIn,
+        direction,
+        poolAddress: pool.address,
+      })
+        .then((quote) => {
+          if (active) {
+            setLiveQuote(quote)
+          }
+        })
+        .catch((error) => {
+          if (active) {
+            setLiveQuote(null)
+            setQuoteError(error instanceof Error ? error.message : 'Unable to refresh the Meteora quote')
+          }
+        })
+        .finally(() => {
+          if (active) {
+            setQuoteLoading(false)
+          }
+        })
+    }, 300)
+
+    return () => {
+      active = false
+      clearTimeout(timeoutId)
+    }
+  }, [amountIn, direction, parsedAmountIn, pool.address])
 
   async function handleSubmit() {
     if (!accountAddress) {
@@ -63,21 +114,28 @@ export function SwapForm({ accountAddress, onCreateSwap, onRequireConnect, pool 
       return
     }
 
-    if (parsedAmountIn <= 0 || preview.amountOut <= 0) {
+    if (parsedAmountIn <= 0 || displayedQuote.amountOut <= 0) {
       Alert.alert('Enter an amount')
       return
     }
 
-    onCreateSwap({
-      amountIn: parsedAmountIn,
-      amountOut: preview.amountOut,
-      direction,
-      priorityLevel,
-      useJito,
-    })
+    setIsSubmitting(true)
 
-    Alert.alert('Swap recorded')
-    setAmountIn('')
+    try {
+      const result = await onCreateSwap({
+        amountIn,
+        direction,
+        priorityLevel,
+      })
+
+      setAmountIn('')
+      setLiveQuote(result.quote)
+      Alert.alert('Swap confirmed', shortAddress(result.signature))
+    } catch (error) {
+      Alert.alert('Swap failed', error instanceof Error ? error.message : 'The wallet rejected the transaction')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -85,7 +143,7 @@ export function SwapForm({ accountAddress, onCreateSwap, onRequireConnect, pool 
       <SectionCard className="gap-4">
         <View className="gap-2">
           <Text className="text-base font-semibold text-ink-900">Swap</Text>
-          <Text className="text-sm leading-6 text-ink-700">Choose a direction, set size, and review the route.</Text>
+          <Text className="text-sm leading-6 text-ink-700">Quote with Meteora, then submit the on-chain transaction.</Text>
         </View>
 
         <View className="gap-3">
@@ -101,9 +159,10 @@ export function SwapForm({ accountAddress, onCreateSwap, onRequireConnect, pool 
           />
         </View>
 
-        <InputShell detail={`≈ ${formatCompactCurrency(preview.inputUsd)}`} label="Amount in">
+        <InputShell detail={`≈ ${formatCompactCurrency(parsedAmountIn * inputTokenPrice)}`} label="Amount in">
           <TextInput
             className="p-0 text-[28px] font-semibold text-ink-900"
+            editable={!isSubmitting}
             keyboardType="decimal-pad"
             onChangeText={(value) => setAmountIn(sanitizeDecimal(value))}
             placeholder={`Enter ${inputSymbol}`}
@@ -116,27 +175,20 @@ export function SwapForm({ accountAddress, onCreateSwap, onRequireConnect, pool 
           <Text className="text-[11px] font-semibold uppercase tracking-wide text-ink-700">Priority</Text>
           <PillSelector columns={3} onChange={setPriorityLevel} options={priorityOptions} value={priorityLevel} />
         </View>
-
-        <InputShell detail="MEV protection" label="Jito">
-          <PillSelector
-            columns={2}
-            onChange={(nextValue) => setUseJito(nextValue === 'on')}
-            options={[
-              { label: 'On', value: 'on' },
-              { label: 'Off', value: 'off' },
-            ]}
-            value={useJito ? 'on' : 'off'}
-          />
-        </InputShell>
       </SectionCard>
 
       <SectionCard className="gap-4" tone="muted">
         <Text className="text-base font-semibold text-ink-900">Preview</Text>
         <InputShell label="Estimated out" tone="raised">
           <Text selectable className="text-xl font-semibold text-ink-900">
-            {formatTokenAmount(preview.amountOut)} {outputSymbol}
+            {formatTokenAmount(displayedQuote.amountOut)} {outputSymbol}
           </Text>
-          <Text className="text-sm text-ink-700">{preview.executionLane}</Text>
+          <Text className="text-sm text-ink-700">
+            {quoteLoading
+              ? 'Refreshing live quote...'
+              : `Min out ${formatTokenAmount(displayedQuote.minAmountOut)} ${outputSymbol}`}
+          </Text>
+          {quoteError ? <Text className="text-sm text-clay-700">{quoteError}</Text> : null}
         </InputShell>
 
         <View className="flex-row flex-wrap gap-2.5">
@@ -144,19 +196,19 @@ export function SwapForm({ accountAddress, onCreateSwap, onRequireConnect, pool 
             label="Trading fee"
             style={{ width: '48%' }}
             tone="raised"
-            value={formatCompactCurrency(preview.feeUsd)}
+            value={`${formatTokenAmount(displayedQuote.feeAmount)} ${inputSymbol}`}
           />
           <DataTile
             label="Price impact"
             style={{ width: '48%' }}
             tone="raised"
-            value={formatPercentage(preview.priceImpactPct)}
+            value={formatPercentage(displayedQuote.priceImpactPct / 100)}
           />
           <DataTile
-            label="Priority fee"
+            label="Route"
             style={{ width: '48%' }}
             tone="raised"
-            value={`${formatTokenAmount(preview.priorityFeeSol)} SOL`}
+            value={liveQuote ? 'Meteora live quote' : preview.executionLane}
           />
           <DataTile
             label="Base fee"
@@ -167,6 +219,7 @@ export function SwapForm({ accountAddress, onCreateSwap, onRequireConnect, pool 
         </View>
 
         <PrimaryButton
+          busy={isSubmitting}
           iconName={accountAddress ? 'swap-horizontal' : 'wallet-outline'}
           label={accountAddress ? 'Swap' : 'Connect wallet'}
           onPress={() => {

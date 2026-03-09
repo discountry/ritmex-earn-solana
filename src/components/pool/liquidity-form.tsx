@@ -6,7 +6,7 @@ import { InputShell } from '@/components/ui/input-shell'
 import { PillSelector } from '@/components/ui/pill-selector'
 import { PrimaryButton } from '@/components/ui/primary-button'
 import { SectionCard } from '@/components/ui/section-card'
-import { formatCompactCurrency, formatPercentage, formatTokenAmount } from '@/lib/formatters'
+import { formatCompactCurrency, formatPercentage, shortAddress } from '@/lib/formatters'
 import { estimateLiquidityPreview } from '@/lib/position-estimator'
 import type { LiquidityMode, MeteoraPool, PriceStrategy, PriorityLevel } from '@/types/meteora'
 
@@ -31,14 +31,12 @@ const priorityOptions: { hint: string; label: string; value: PriorityLevel }[] =
 interface LiquidityFormProps {
   accountAddress?: string
   onCreatePosition: (input: {
-    depositedX: number
-    depositedY: number
+    amountX: string
+    amountY: string
     mode: LiquidityMode
-    note: string
     priorityLevel: PriorityLevel
     strategy: PriceStrategy
-    useJito: boolean
-  }) => void
+  }) => Promise<{ positionAddress: string; signature: string }>
   onRequireConnect: () => Promise<void>
   pool: MeteoraPool
 }
@@ -67,11 +65,10 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
   const [autoBalance, setAutoBalance] = React.useState(true)
   const [lastEditedField, setLastEditedField] = React.useState<'x' | 'y'>('x')
   const [mode, setMode] = React.useState<LiquidityMode>('Balanced')
-  const [note, setNote] = React.useState('')
   const [priorityLevel, setPriorityLevel] = React.useState<PriorityLevel>('Medium')
   const [singleAsset, setSingleAsset] = React.useState<'x' | 'y'>('x')
   const [strategy, setStrategy] = React.useState<PriceStrategy>('Stable')
-  const [useJito, setUseJito] = React.useState(true)
+  const [isSubmitting, setIsSubmitting] = React.useState(false)
 
   React.useEffect(() => {
     if (mode !== 'Balanced' || !autoBalance) {
@@ -127,8 +124,7 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
 
   const parsedAmountX = mode === 'One-Sided' && singleAsset === 'y' ? 0 : parseAmount(amountX)
   const parsedAmountY = mode === 'One-Sided' && singleAsset === 'x' ? 0 : parseAmount(amountY)
-
-  const preview = estimateLiquidityPreview(pool, parsedAmountX, parsedAmountY, mode, priorityLevel, useJito)
+  const preview = estimateLiquidityPreview(pool, parsedAmountX, parsedAmountY, mode, priorityLevel, false)
 
   async function handleSubmit() {
     if (!accountAddress) {
@@ -150,20 +146,25 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
       return
     }
 
-    onCreatePosition({
-      depositedX: parsedAmountX,
-      depositedY: parsedAmountY,
-      mode,
-      note: note.trim(),
-      priorityLevel,
-      strategy,
-      useJito,
-    })
+    setIsSubmitting(true)
 
-    Alert.alert('Position added')
-    setAmountX('')
-    setAmountY('')
-    setNote('')
+    try {
+      const result = await onCreatePosition({
+        amountX: mode === 'One-Sided' && singleAsset === 'y' ? '0' : amountX || '0',
+        amountY: mode === 'One-Sided' && singleAsset === 'x' ? '0' : amountY || '0',
+        mode,
+        priorityLevel,
+        strategy,
+      })
+
+      setAmountX('')
+      setAmountY('')
+      Alert.alert('Liquidity added', shortAddress(result.signature))
+    } catch (error) {
+      Alert.alert('Add liquidity failed', error instanceof Error ? error.message : 'The wallet rejected the transaction')
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -171,7 +172,7 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
       <SectionCard className="gap-4">
         <View className="gap-2">
           <Text className="text-base font-semibold text-ink-900">Add liquidity</Text>
-          <Text className="text-sm leading-6 text-ink-700">Set amount, range style, and execution mode.</Text>
+          <Text className="text-sm leading-6 text-ink-700">Build the DLMM position from the selected mode and strategy.</Text>
         </View>
 
         <View className="gap-3">
@@ -220,7 +221,7 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
           >
             <TextInput
               className="p-0 text-[28px] font-semibold text-ink-900"
-              editable={mode !== 'One-Sided' || singleAsset === 'x'}
+              editable={!isSubmitting && (mode !== 'One-Sided' || singleAsset === 'x')}
               keyboardType="decimal-pad"
               onChangeText={(value) => {
                 setLastEditedField('x')
@@ -238,7 +239,7 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
           >
             <TextInput
               className="p-0 text-[28px] font-semibold text-ink-900"
-              editable={mode !== 'One-Sided' || singleAsset === 'y'}
+              editable={!isSubmitting && (mode !== 'One-Sided' || singleAsset === 'y')}
               keyboardType="decimal-pad"
               onChangeText={(value) => {
                 setLastEditedField('y')
@@ -251,34 +252,10 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
           </InputShell>
         </View>
 
-        <InputShell label="Note">
-          <TextInput
-            className="min-h-[72px] p-0 text-base leading-6 text-ink-900"
-            multiline
-            onChangeText={setNote}
-            placeholder="Optional"
-            placeholderTextColor="#847d71"
-            textAlignVertical="top"
-            value={note}
-          />
-        </InputShell>
-
         <View className="gap-3">
           <Text className="text-[11px] font-semibold uppercase tracking-wide text-ink-700">Priority</Text>
           <PillSelector columns={3} onChange={setPriorityLevel} options={priorityOptions} value={priorityLevel} />
         </View>
-
-        <InputShell detail="MEV protection" label="Jito">
-          <PillSelector
-            columns={2}
-            onChange={(nextValue) => setUseJito(nextValue === 'on')}
-            options={[
-              { label: 'On', value: 'on' },
-              { label: 'Off', value: 'off' },
-            ]}
-            value={useJito ? 'on' : 'off'}
-          />
-        </InputShell>
       </SectionCard>
 
       <SectionCard className="gap-4" tone="muted">
@@ -303,10 +280,10 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
             value={formatCompactCurrency(preview.dailyFeesUsd)}
           />
           <DataTile
-            label="Priority fee"
+            label="Range"
             style={{ width: '48%' }}
             tone="raised"
-            value={`${formatTokenAmount(preview.priorityFeeSol)} SOL`}
+            value={preview.rangeCoverage}
           />
         </View>
 
@@ -318,6 +295,7 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
         </InputShell>
 
         <PrimaryButton
+          busy={isSubmitting}
           iconName={accountAddress ? 'add-outline' : 'wallet-outline'}
           label={accountAddress ? 'Add liquidity' : 'Connect wallet'}
           onPress={() => {
