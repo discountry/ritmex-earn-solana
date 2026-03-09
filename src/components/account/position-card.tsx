@@ -27,7 +27,7 @@ export function PositionCard({ onClose, onCollect, position }: PositionCardProps
   const isClosed = position.status === 'Closed'
 
   return (
-    <SectionCard className="gap-5">
+    <SectionCard className="gap-4">
       <Link href={{ pathname: '/pool/[address]', params: { address: position.poolAddress } }} asChild>
         <Pressable className="gap-3">
           <View className="flex-row items-start justify-between gap-3">
@@ -61,7 +61,7 @@ export function PositionCard({ onClose, onCollect, position }: PositionCardProps
         </Pressable>
       </Link>
 
-      <View className="flex-row flex-wrap gap-3">
+      <View className="flex-row flex-wrap gap-2.5">
         <DataTile
           detail={`${formatTokenAmount(position.depositedX)} ${position.tokenXSymbol} / ${formatTokenAmount(position.depositedY)} ${position.tokenYSymbol}`}
           label="Size"
@@ -76,7 +76,7 @@ export function PositionCard({ onClose, onCollect, position }: PositionCardProps
         />
       </View>
 
-      <View className="flex-row gap-3 border-t border-sand-200 pt-4">
+      <View className="flex-row gap-2.5 border-t border-sand-200 pt-3">
         <PrimaryButton
           className="flex-1"
           disabled={isClosed}

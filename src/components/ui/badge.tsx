@@ -26,7 +26,7 @@ interface BadgeProps {
 
 export function Badge({ className, label, tone = 'default' }: BadgeProps) {
   return (
-    <View className={cn('border px-3 py-2', containerClasses[tone], className)}>
+    <View className={cn('border px-3 py-1.5', containerClasses[tone], className)}>
       <Text className={cn('text-[11px] font-semibold uppercase tracking-wide', textClasses[tone])}>{label}</Text>
     </View>
   )

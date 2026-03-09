@@ -1,6 +1,6 @@
 export const pageContentStyle = {
-  gap: 18,
-  paddingBottom: 128,
-  paddingHorizontal: 20,
-  paddingTop: 20,
+  gap: 14,
+  paddingBottom: 112,
+  paddingHorizontal: 16,
+  paddingTop: 16,
 } as const

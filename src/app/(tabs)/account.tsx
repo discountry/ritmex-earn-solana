@@ -48,7 +48,7 @@ export default function AccountScreen() {
       contentInsetAdjustmentBehavior="automatic"
       showsVerticalScrollIndicator={false}
     >
-      <SectionCard className="gap-6" tone="inverse">
+      <SectionCard className="gap-5" tone="inverse">
         <View className="flex-row items-start justify-between gap-4">
           <View className="flex-1 gap-3">
             <Text className="text-3xl font-semibold text-sand-50">Portfolio</Text>
@@ -73,7 +73,7 @@ export default function AccountScreen() {
         )}
       </SectionCard>
 
-      <View className="flex-row flex-wrap gap-3">
+      <View className="flex-row flex-wrap gap-2.5">
         <DataTile
           detail={`Capital ${formatCompactCurrency(totalCapital)}`}
           label="Open positions"
@@ -88,7 +88,7 @@ export default function AccountScreen() {
         />
       </View>
 
-      <SectionCard className="gap-5" tone="muted">
+      <SectionCard className="gap-4" tone="muted">
         <Text className="text-base font-semibold text-ink-900">Positions</Text>
 
         {accountAddress && accountPositions.length > 0 ? (
@@ -124,7 +124,7 @@ export default function AccountScreen() {
         )}
       </SectionCard>
 
-      <SectionCard className="gap-5">
+      <SectionCard className="gap-4">
         <Text className="text-base font-semibold text-ink-900">Activity</Text>
 
         {accountAddress && accountActivity.length > 0 ? (

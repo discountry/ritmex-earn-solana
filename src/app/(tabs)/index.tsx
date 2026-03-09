@@ -44,7 +44,7 @@ export default function MarketsScreen() {
       refreshControl={<RefreshControl onRefresh={refresh} refreshing={isLoading} tintColor="#23685b" />}
       showsVerticalScrollIndicator={false}
     >
-      <SectionCard className="gap-6" tone="inverse">
+      <SectionCard className="gap-5" tone="inverse">
         <View className="flex-row flex-wrap gap-2">
           <Badge label="DLMM" tone="success" />
           <Badge label="Mainnet" tone="inverse" />
@@ -74,7 +74,7 @@ export default function MarketsScreen() {
         ) : null}
       </SectionCard>
 
-      <SectionCard className="gap-5" tone="muted">
+      <SectionCard className="gap-4" tone="muted">
         <Text className="text-base font-semibold text-ink-900">Market filters</Text>
 
         <InputShell label="Search" tone="raised">
@@ -96,7 +96,7 @@ export default function MarketsScreen() {
           <PillSelector columns={2} onChange={setSortKey} options={sortOptions} value={sortKey} />
         </View>
 
-        <View className="flex-row flex-wrap gap-3">
+        <View className="flex-row flex-wrap gap-2.5">
           {feeLeader ? (
             <DataTile
               detail={feeLeader.name}
@@ -123,7 +123,7 @@ export default function MarketsScreen() {
         </Text>
       </SectionCard>
 
-      <View className="gap-4">
+      <View className="gap-3">
         {data.map((pool) => (
           <PoolMarketCard key={pool.address} pool={pool} />
         ))}

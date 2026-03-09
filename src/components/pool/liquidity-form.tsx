@@ -167,8 +167,8 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
   }
 
   return (
-    <View className="gap-5">
-      <SectionCard className="gap-5">
+    <View className="gap-4">
+      <SectionCard className="gap-4">
         <View className="gap-2">
           <Text className="text-base font-semibold text-ink-900">Add liquidity</Text>
           <Text className="text-sm leading-6 text-ink-700">Set amount, range style, and execution mode.</Text>
@@ -213,7 +213,7 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
           </InputShell>
         ) : null}
 
-        <View className="gap-4">
+        <View className="gap-3">
           <InputShell
             detail={`≈ ${formatCompactCurrency(parsedAmountX * pool.token_x.price)}`}
             label={`${pool.token_x.symbol} amount`}
@@ -281,9 +281,9 @@ export function LiquidityForm({ accountAddress, onCreatePosition, onRequireConne
         </InputShell>
       </SectionCard>
 
-      <SectionCard className="gap-5" tone="muted">
+      <SectionCard className="gap-4" tone="muted">
         <Text className="text-base font-semibold text-ink-900">Preview</Text>
-        <View className="flex-row flex-wrap gap-3">
+        <View className="flex-row flex-wrap gap-2.5">
           <DataTile
             label="Deposit"
             style={{ width: '48%' }}

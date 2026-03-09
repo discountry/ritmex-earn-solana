@@ -23,7 +23,7 @@ const widthStyleByColumns = {
 
 export function PillSelector<T extends string>({ columns = 2, onChange, options, value }: PillSelectorProps<T>) {
   return (
-    <View className="flex-row flex-wrap gap-3">
+    <View className="flex-row flex-wrap gap-2.5">
       {options.map((option) => {
         const selected = option.value === value
 
@@ -31,20 +31,24 @@ export function PillSelector<T extends string>({ columns = 2, onChange, options,
           <Pressable
             key={option.value}
             className={cn(
-              'min-h-[56px] justify-between border px-4 py-3',
+              'min-h-[50px] justify-center border px-3 py-2',
               selected ? 'border-ink-900 bg-ink-900' : 'border-sand-200 bg-white',
             )}
             onPress={() => onChange(option.value)}
             style={widthStyleByColumns[columns]}
           >
-            <Text className={cn('text-sm font-semibold', selected ? 'text-sand-50' : 'text-ink-900')}>
-              {option.label}
-            </Text>
-            {option.hint ? (
-              <Text className={cn('text-[11px] uppercase tracking-wide', selected ? 'text-sand-100' : 'text-ink-700')}>
-                {option.hint}
+            <View className="gap-1">
+              <Text className={cn('text-sm font-semibold', selected ? 'text-sand-50' : 'text-ink-900')}>
+                {option.label}
               </Text>
-            ) : null}
+              {option.hint ? (
+                <Text
+                  className={cn('text-[11px] uppercase tracking-wide', selected ? 'text-sand-100' : 'text-ink-700')}
+                >
+                  {option.hint}
+                </Text>
+              ) : null}
+            </View>
           </Pressable>
         )
       })}

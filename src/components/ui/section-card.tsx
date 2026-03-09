@@ -20,7 +20,7 @@ interface SectionCardProps extends PropsWithChildren, ViewProps {
 
 export function SectionCard({ children, className, tone = 'default', ...props }: SectionCardProps) {
   return (
-    <View className={cn('border px-5 py-5', toneClasses[tone], className)} {...props}>
+    <View className={cn('border px-4 py-4', toneClasses[tone], className)} {...props}>
       {children}
     </View>
   )

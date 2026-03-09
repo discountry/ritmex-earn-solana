@@ -81,8 +81,8 @@ export function SwapForm({ accountAddress, onCreateSwap, onRequireConnect, pool 
   }
 
   return (
-    <View className="gap-5">
-      <SectionCard className="gap-5">
+    <View className="gap-4">
+      <SectionCard className="gap-4">
         <View className="gap-2">
           <Text className="text-base font-semibold text-ink-900">Swap</Text>
           <Text className="text-sm leading-6 text-ink-700">Choose a direction, set size, and review the route.</Text>
@@ -130,7 +130,7 @@ export function SwapForm({ accountAddress, onCreateSwap, onRequireConnect, pool 
         </InputShell>
       </SectionCard>
 
-      <SectionCard className="gap-5" tone="muted">
+      <SectionCard className="gap-4" tone="muted">
         <Text className="text-base font-semibold text-ink-900">Preview</Text>
         <InputShell label="Estimated out" tone="raised">
           <Text selectable className="text-xl font-semibold text-ink-900">
@@ -139,7 +139,7 @@ export function SwapForm({ accountAddress, onCreateSwap, onRequireConnect, pool 
           <Text className="text-sm text-ink-700">{preview.executionLane}</Text>
         </InputShell>
 
-        <View className="flex-row flex-wrap gap-3">
+        <View className="flex-row flex-wrap gap-2.5">
           <DataTile
             label="Trading fee"
             style={{ width: '48%' }}

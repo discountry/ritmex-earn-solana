@@ -37,7 +37,7 @@ interface DataTileProps extends ViewProps {
 export function DataTile({ className, detail, label, style, tone = 'default', value, ...props }: DataTileProps) {
   return (
     <View
-      className={cn('min-h-[96px] justify-between border px-4 py-4', containerClasses[tone], className)}
+      className={cn('min-h-[84px] justify-between border px-4 py-3', containerClasses[tone], className)}
       style={[{ minWidth: 0 }, style]}
       {...props}
     >
@@ -45,7 +45,7 @@ export function DataTile({ className, detail, label, style, tone = 'default', va
       <View className="gap-1">
         <Text
           selectable
-          className={cn('text-lg font-semibold leading-8', valueClasses[tone])}
+          className={cn('text-lg font-semibold leading-7', valueClasses[tone])}
           style={{ fontVariant: ['tabular-nums'] }}
         >
           {value}

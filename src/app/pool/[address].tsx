@@ -58,7 +58,7 @@ export default function PoolDetailsScreen() {
     >
       <Stack.Screen options={{ title: pool.name }} />
 
-      <SectionCard className="gap-6" tone="inverse">
+      <SectionCard className="gap-5" tone="inverse">
         <View className="flex-row flex-wrap gap-2">
           <Badge label={`Bin ${pool.pool_config.bin_step}`} tone="inverse" />
           {pool.launchpad ? <Badge label={pool.launchpad} tone="success" /> : null}
@@ -72,7 +72,7 @@ export default function PoolDetailsScreen() {
           </Text>
         </View>
 
-        <View className="flex-row flex-wrap gap-3">
+        <View className="flex-row flex-wrap gap-2.5">
           <DataTile label="TVL" style={{ width: '48%' }} tone="inverse" value={formatCompactCurrency(pool.tvl)} />
           <DataTile
             label="24H volume"
@@ -94,7 +94,7 @@ export default function PoolDetailsScreen() {
         </Text>
       </SectionCard>
 
-      <SectionCard className="gap-5" tone="muted">
+      <SectionCard className="gap-4" tone="muted">
         <Text className="text-base font-semibold text-ink-900">Actions</Text>
 
         <PillSelector
