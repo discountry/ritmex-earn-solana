@@ -38,6 +38,15 @@ interface TokenBalanceCheck {
   symbol: string
 }
 
+interface SwapBalanceCheck {
+  amount: BN
+  direction: SwapDirection
+  dlmmPool: DLMM
+  owner: PublicKey
+  tokenXSymbol: string
+  tokenYSymbol: string
+}
+
 export interface PreparedLiquidityTransaction {
   additionalSigners: Keypair[]
   positionAddress: string
@@ -83,6 +92,35 @@ function toDisplayAmount(amount: BN, decimals: number, symbol: string) {
 
 function getTokenLabel(mint: PublicKey, fallback: string) {
   return mint.equals(NATIVE_MINT) ? 'SOL' : fallback
+}
+
+function isDlmmComputeEstimationConsoleError(args: Parameters<typeof console.error>) {
+  const [first, second] = args
+
+  if (typeof first !== 'string' || !first.includes('Error::getEstimatedComputeUnitUsageWithBuffer')) {
+    return false
+  }
+
+  const message = second instanceof Error ? second.message : String(second ?? '')
+  return message.includes('Transaction simulation failed')
+}
+
+async function withSuppressedDlmmComputeEstimationError<T>(callback: () => Promise<T>) {
+  const originalConsoleError = console.error.bind(console)
+
+  console.error = (...args: Parameters<typeof console.error>) => {
+    if (isDlmmComputeEstimationConsoleError(args)) {
+      return
+    }
+
+    originalConsoleError(...args)
+  }
+
+  try {
+    return await callback()
+  } finally {
+    console.error = originalConsoleError
+  }
 }
 
 async function getAvailableAmount(owner: PublicKey, mint: PublicKey) {
@@ -178,6 +216,38 @@ async function assertSufficientLiquidityBalances(options: {
   ])
 }
 
+async function assertSufficientSwapBalance(options: SwapBalanceCheck) {
+  const { amount, direction, dlmmPool, owner, tokenXSymbol, tokenYSymbol } = options
+
+  const inputToken = direction === 'xToY' ? dlmmPool.tokenX : dlmmPool.tokenY
+  const outputToken = direction === 'xToY' ? dlmmPool.tokenY : dlmmPool.tokenX
+  const inputSymbol = getTokenLabel(inputToken.publicKey, direction === 'xToY' ? tokenXSymbol : tokenYSymbol)
+  const outputSymbol = getTokenLabel(outputToken.publicKey, direction === 'xToY' ? tokenYSymbol : tokenXSymbol)
+
+  await assertSufficientBalance(owner, {
+    amount,
+    decimals: inputToken.mint.decimals,
+    mint: inputToken.publicKey,
+    symbol: inputSymbol,
+  })
+
+  if (inputToken.publicKey.equals(NATIVE_MINT)) {
+    return
+  }
+
+  const availableSol = await getAvailableAmount(owner, NATIVE_MINT)
+
+  if (availableSol.lt(SOL_BALANCE_BUFFER_LAMPORTS)) {
+    throw new Error(
+      `Not enough SOL to pay swap fees and token account rent. Keep about ${toDisplayAmount(
+        SOL_BALANCE_BUFFER_LAMPORTS,
+        9,
+        'SOL',
+      )} in the wallet before swapping ${inputSymbol} to ${outputSymbol}.`,
+    )
+  }
+}
+
 function normalizeLiquidityBuildError(error: unknown) {
   if (isInsufficientFundsError(error)) {
     return new Error(
@@ -265,20 +335,33 @@ export async function buildSwapTransaction(options: {
   owner: string
   poolAddress: string
   priorityLevel: PriorityLevel
+  tokenXSymbol: string
+  tokenYSymbol: string
 }) {
   const { owner, priorityLevel } = options
   const { dlmmPool, inputDecimals, outputDecimals, quote, swapAmount, swapYtoX } = await prepareSwapQuote(options)
   const ownerKey = new PublicKey(owner)
 
-  const transaction = await dlmmPool.swap({
-    binArraysPubkey: quote.binArraysPubkey,
-    inAmount: swapAmount,
-    inToken: swapYtoX ? dlmmPool.tokenX.publicKey : dlmmPool.tokenY.publicKey,
-    lbPair: dlmmPool.pubkey,
-    minOutAmount: quote.minOutAmount,
-    outToken: swapYtoX ? dlmmPool.tokenY.publicKey : dlmmPool.tokenX.publicKey,
-    user: ownerKey,
+  await assertSufficientSwapBalance({
+    amount: swapAmount,
+    direction: options.direction,
+    dlmmPool,
+    owner: ownerKey,
+    tokenXSymbol: options.tokenXSymbol,
+    tokenYSymbol: options.tokenYSymbol,
   })
+
+  const transaction = await withSuppressedDlmmComputeEstimationError(() =>
+    dlmmPool.swap({
+      binArraysPubkey: quote.binArraysPubkey,
+      inAmount: swapAmount,
+      inToken: swapYtoX ? dlmmPool.tokenX.publicKey : dlmmPool.tokenY.publicKey,
+      lbPair: dlmmPool.pubkey,
+      minOutAmount: quote.minOutAmount,
+      outToken: swapYtoX ? dlmmPool.tokenY.publicKey : dlmmPool.tokenX.publicKey,
+      user: ownerKey,
+    }),
+  )
 
   await addPriorityFee(transaction, priorityLevel)
 

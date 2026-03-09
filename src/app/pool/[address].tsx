@@ -173,6 +173,8 @@ export default function PoolDetailsScreen() {
               owner: accountAddress,
               poolAddress: pool.address,
               priorityLevel: input.priorityLevel,
+              tokenXSymbol: pool.token_x.symbol,
+              tokenYSymbol: pool.token_y.symbol,
             })
 
             const [signature] = await signAndSendTransactions({
